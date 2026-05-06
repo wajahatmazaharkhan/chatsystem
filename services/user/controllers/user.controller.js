@@ -23,6 +23,10 @@ function sanitizeUser(doc) {
   delete obj._id;
   delete obj.password_hash;
   delete obj.__v;
+  // Ensure dates are ISO strings for API consumers
+  if (obj.created_at instanceof Date) obj.created_at = obj.created_at.toISOString();
+  if (obj.updated_at instanceof Date) obj.updated_at = obj.updated_at.toISOString();
+  if (obj.deleted_at instanceof Date) obj.deleted_at = obj.deleted_at.toISOString();
   return obj;
 }
 
@@ -45,20 +49,25 @@ exports.createUser = async function createUser(req, res, next) {
       });
     }
 
+    // Normalize and validate email and role
+    const emailNorm = String(email).trim().toLowerCase();
+    const allowedRoles = ['ADMIN', 'MANAGER', 'STUDENT'];
+    if (!allowedRoles.includes(role)) {
+      return res.status(400).json({ code: 'ERR_VALIDATION', message: 'Invalid role' });
+    }
+
     // Hash password before storing to avoid plain-text storage
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
       name,
-      email,
+      email: emailNorm,
       password_hash: hashedPassword,
       role
     });
 
-    // Normalize output like getUser/listUsers
-    const obj = sanitizeUser(user);
-
-    res.status(201).json(obj);
+    // Return only public user_id per contract (do not return password_hash or other fields)
+    res.status(201).json({ user_id: user._id.toString() });
 
   } catch (err) {
     // Handle duplicate email error
@@ -171,18 +180,8 @@ exports.listUsers = async function listUsers(req, res, next) {
       User.countDocuments(q),
     ]);
 
-    // Normalize results: map _id to user_id and format dates to ISO strings
-    const mapped = items.map((it) => {
-      const obj = { ...it };
-      obj.user_id = obj._id ? obj._id.toString() : obj.user_id;
-      delete obj._id;
-      delete obj.password_hash;
-      delete obj.__v;
-      if (obj.created_at instanceof Date) obj.created_at = obj.created_at.toISOString();
-      if (obj.updated_at instanceof Date) obj.updated_at = obj.updated_at.toISOString();
-      if (obj.deleted_at instanceof Date) obj.deleted_at = obj.deleted_at.toISOString();
-      return obj;
-    });
+    // Sanitize each item using helper to keep output consistent
+    const mapped = items.map((it) => sanitizeUser(it));
 
     res.json({ items: mapped, page: pageNum, limit: perPage, total });
   } catch (err) {
@@ -202,29 +201,16 @@ exports.getUser = async function getUser(req, res, next) {
     const { user_id } = req.params;
     if (!user_id) return res.status(400).json({ code: 'ERR_INVALID_ID', message: 'user_id required' });
 
-    // Prefer direct _id lookup for Mongo ObjectId strings
-    let user = null;
-    if (mongoose.isValidObjectId(user_id)) {
-      user = await User.findById(user_id).lean();
-    }
-    if (!user) {
-      // Fallback: attempt to find a document where _id equals the provided string
-      user = await User.findOne({ _id: user_id }).lean();
-    }
+    // Validate id format
+    if (!mongoose.isValidObjectId(user_id)) return res.status(400).json({ code: 'ERR_INVALID_ID', message: 'Invalid user_id format' });
+
+    const user = await User.findById(user_id).lean();
 
     // Treat soft-deleted users as not found for standard GET
     if (!user || user.deleted_at) return res.status(404).json({ code: 'ERR_NOT_FOUND', message: 'User not found' });
 
-    // Sanitize and format response
-    const obj = { ...user };
-    obj.user_id = obj._id ? obj._id.toString() : obj.user_id;
-    delete obj._id;
-    delete obj.password_hash;
-    delete obj.__v;
-    if (obj.created_at instanceof Date) obj.created_at = obj.created_at.toISOString();
-    if (obj.updated_at instanceof Date) obj.updated_at = obj.updated_at.toISOString();
-    if (obj.deleted_at instanceof Date) obj.deleted_at = obj.deleted_at.toISOString();
-
+    // Sanitize and return
+    const obj = sanitizeUser(user);
     res.json(obj);
   } catch (err) {
     next(err);
