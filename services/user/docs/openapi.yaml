@@ -3,8 +3,8 @@ info:
   title: User Management API (Module 2)
   version: 1.0.0
   description: >-
-    Minimal, internship-friendly OpenAPI spec for the User Management module.
-    Auth: Bearer JWT. Times: UTC ISO 8601 (YYYY-MM-DDTHH:MM:SSZ).
+    Minimal API for User Management. Responsibilities: create users (ADMIN only),
+    fetch users, fetch user by id, and update user active status. Auth: Bearer JWT.
 servers:
   - url: /api/v1
     description: Local API mount (use gateway in production)
@@ -20,7 +20,7 @@ components:
       properties:
         user_id:
           type: string
-          description: Public user identifier (exposed as string)
+          description: Public user identifier
         name:
           type: string
         email:
@@ -46,6 +46,7 @@ components:
         is_active: true
         created_at: "2026-05-06T14:00:00Z"
         updated_at: "2026-05-06T14:05:00Z"
+
     UserCreate:
       type: object
       properties:
@@ -61,21 +62,14 @@ components:
           type: string
           enum: [ADMIN, MANAGER, STUDENT]
       required: [name, email, password, role]
-    UserUpdate:
+
+    UserStatusPatch:
       type: object
       properties:
-        name:
-          type: string
-        email:
-          type: string
-          format: email
-        password:
-          type: string
-        role:
-          type: string
-          enum: [ADMIN, MANAGER, STUDENT]
         is_active:
           type: boolean
+      required: [is_active]
+
     ErrorResponse:
       type: object
       properties:
@@ -85,6 +79,7 @@ components:
           type: string
         details:
           type: object
+
   responses:
     ServerError:
       description: Internal server error
@@ -92,6 +87,7 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+
   parameters:
     user_id:
       name: user_id
@@ -99,9 +95,11 @@ components:
       required: true
       schema:
         type: string
-      description: Public `user_id` (as string)
+      description: Public `user_id` (string)
+
 security:
   - bearerAuth: []
+
 paths:
   /users:
     get:
@@ -168,9 +166,10 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '500':
           $ref: '#/components/responses/ServerError'
+
     post:
       summary: Create a user (ADMIN only)
-      description: Create a new user. `password` will be hashed server-side; response returns `user_id`.
+      description: Create a new user. `password` is accepted in the request and will be hashed server-side. The response exposes only `user_id`.
       security:
         - bearerAuth: []
       requestBody:
@@ -207,6 +206,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '500':
           $ref: '#/components/responses/ServerError'
+
   /users/{user_id}:
     get:
       summary: Get user details
@@ -229,9 +229,10 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '500':
           $ref: '#/components/responses/ServerError'
-    put:
-      summary: Update user
-      description: Partial updates allowed. Admins can update any user; users can update their own profile (enforced by RBAC middleware).
+
+    patch:
+      summary: Update user active status
+      description: Update only the `is_active` field. Admins can toggle any account; users cannot change their own active status.
       security:
         - bearerAuth: []
       parameters:
@@ -241,7 +242,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserUpdate'
+              $ref: '#/components/schemas/UserStatusPatch'
       responses:
         '200':
           description: Updated
@@ -252,26 +253,10 @@ paths:
                 properties:
                   user_id:
                     type: string
+                  is_active:
+                    type: boolean
         '400':
           description: Bad request
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-        '404':
-          description: Not found
-        '500':
-          $ref: '#/components/responses/ServerError'
-    delete:
-      summary: Soft-delete user (ADMIN only)
-      description: Sets `deleted_at` and `is_active=false`.
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/user_id'
-      responses:
-        '204':
-          description: No Content
         '401':
           description: Unauthorized
         '403':
@@ -284,31 +269,6 @@ paths:
 tags:
   - name: users
     description: User management endpoints
-
-  # Convenience endpoint for authenticated user to fetch own profile
-  /users/me:
-    get:
-      summary: Get current user (me)
-      description: Returns the profile for the authenticated token owner.
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserBase'
-        '401':
-          description: Unauthorized
-        '404':
-          description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/ServerError'
 
 externalDocs:
   description: Implementation notes
