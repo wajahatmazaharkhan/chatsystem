@@ -11,6 +11,7 @@
  */
 const mongoose = require('mongoose');
 const User = require('../../../schema/User');
+const bcrypt = require("bcrypt");
 
 // Helper to remove sensitive/internal fields and normalize output
 // Accepts either a Mongoose document or a plain object (lean results).
@@ -24,6 +25,103 @@ function sanitizeUser(doc) {
   delete obj.__v;
   return obj;
 }
+
+/**
+ * POST /users
+ * Creates a new user with hashed password.
+ * Validates input, handles duplicate email,
+ * and returns sanitized user (no password).
+ */
+
+exports.createUser = async function createUser(req, res, next) {
+  try {
+    const { name, email, password, role } = req.body;
+
+     // Validation
+    if (!name || !email || !password || !role) {
+      return res.status(400).json({
+        code: "ERR_VALIDATION",
+        message: "All fields are required"
+      });
+    }
+
+    // Hash password before storing to avoid plain-text storage
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await User.create({
+      name,
+      email,
+      password_hash: hashedPassword,
+      role
+    });
+
+    // Normalize output like getUser/listUsers
+    const obj = sanitizeUser(user);
+
+    res.status(201).json(obj);
+
+  } catch (err) {
+    // Handle duplicate email error
+    if (err.code === 11000) {
+      return res.status(409).json({
+        code: "ERR_DUPLICATE",
+        message: "Email already exists"
+      });
+    }
+
+    next(err);
+  }
+};
+
+/**
+ * PATCH /users/:user_id/status
+ * Updates is_active (enable/disable user).
+ * Validates input, returns updated sanitized user.
+ */
+
+exports.patchStatus = async function patchStatus(req, res, next) {
+  try {
+    const { user_id } = req.params;
+    const { is_active } = req.body;
+
+     // Validate presence of user_id 
+     if (!user_id) {
+  return res.status(400).json({
+    code: "ERR_INVALID_ID",
+    message: "user_id required"
+  });
+}
+    // Strict boolean validation (same style consistency)
+    if (typeof is_active !== "boolean") {
+      return res.status(400).json({
+        code: "ERR_VALIDATION",
+        message: "is_active must be boolean"
+      });
+    }
+
+    // Single query (no redundant fallback)
+    const user = await User.findByIdAndUpdate(
+      user_id,
+      { is_active },
+      { new: true }
+    ).lean();
+
+    
+    if (!user) {
+      return res.status(404).json({
+        code: "ERR_NOT_FOUND",
+        message: "User not found"
+      });
+    }
+
+    const obj = sanitizeUser(user);
+
+    return res.json(obj);
+
+  } catch (err) {
+    next(err);
+  }
+};
 
 /**
  * GET /users
@@ -132,6 +230,7 @@ exports.getUser = async function getUser(req, res, next) {
     next(err);
   }
 };
+
 
 // Export sanitize helper for tests if needed
 exports._sanitizeUser = sanitizeUser;
