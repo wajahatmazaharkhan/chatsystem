@@ -1,10 +1,12 @@
-const { sendMessage, getGroupHistory, deleteMessage } = require('../services/chatServices');
+const mongoose = require('mongoose');
+const Message = require('../../../../schema/Message');
+const { sendMessage, getGroupHistory } = require('../services/chatServices');
 
 /**
  * POST /v1/chat/send
  * Sends a message to a group.
  */
-const send = async (req, res) => {
+const send = async (req, res, next) => {
     const { group_id, content } = req.body;
     const { user_id } = req.user;
 
@@ -19,8 +21,7 @@ const send = async (req, res) => {
 
         return res.status(201).json({ status: "success", data: message });
     } catch (error) {
-        console.error("send error:", error.message);
-        return res.status(500).json({ error: "Failed to send message" });
+        next(error);
     }
 };
 
@@ -28,37 +29,55 @@ const send = async (req, res) => {
  * GET /v1/chat/history/:group_id
  * Returns the last 50 messages for a group.
  */
-const getHistory = async (req, res) => {
+const getHistory = async (req, res, next) => {
     const { group_id } = req.params;
 
     try {
         const history = await getGroupHistory(group_id);
         return res.status(200).json({ status: "success", data: history });
     } catch (error) {
-        console.error("getHistory error:", error.message);
-        return res.status(500).json({ error: "Failed to fetch history" });
+        next(error);
     }
 };
 
 /**
  * DELETE /v1/chat/message/:message_id
- * Soft-deletes a message. Only the sender can delete their own message.
+ * Soft-deletes a message. Only the original sender can delete their own message.
  */
-const remove = async (req, res) => {
+const remove = async (req, res, next) => {
     const { message_id } = req.params;
     const { user_id } = req.user;
 
-    try {
-        const deleted = await deleteMessage(message_id, user_id);
+    if (!mongoose.isValidObjectId(message_id)) {
+        return res.status(400).json({
+            code: "ERR_INVALID_MESSAGE_ID",
+            message: "Invalid message_id",
+        });
+    }
 
-        if (!deleted) {
-            return res.status(404).json({ error: "Message not found or you are not the sender" });
+    try {
+        const message = await Message.findById(message_id);
+
+        if (!message) {
+            return res.status(404).json({
+                code: "ERR_NOT_FOUND",
+                message: "Message not found",
+            });
         }
 
-        return res.status(200).json({ status: "success", data: deleted });
-    } catch (error) {
-        console.error("remove error:", error.message);
-        return res.status(500).json({ error: "Failed to delete message" });
+        if (message.sender_id.toString() !== user_id.toString()) {
+            return res.status(403).json({
+                code: "ERR_FORBIDDEN",
+                message: "Cannot delete others' messages",
+            });
+        }
+
+        message.deleted_at = new Date();
+        await message.save();
+
+        return res.status(204).send();
+    } catch (err) {
+        next(err);
     }
 };
 
