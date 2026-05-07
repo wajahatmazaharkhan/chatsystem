@@ -3,6 +3,7 @@ const router = express.Router();
 const validateAuth = require('../../../middleware/authMiddleware');
 const checkGroupAccess = require('../../../middleware/groupMiddleware');
 const Message = require('../../../../schema/Message');
+const chatController = require('../controllers/chatController')
 
 // Apply authentication to all chat routes
 router.use(validateAuth);
@@ -57,5 +58,12 @@ router.get('/history/:group_id', checkGroupAccess, async (req, res) => {
         res.status(500).json({ error: "Failed to fetch history" });
     }
 });
+
+/**
+ * DELETE /v1/chat/:message_id
+ * soft-delete message
+ */
+
+router.delete('/:message_id', checkGroupAccess, chatController.deleteMessage);
 
 module.exports = router;
