@@ -31,6 +31,9 @@ components:
           enum: [ADMIN, MANAGER, STUDENT]
         is_active:
           type: boolean
+        status:
+          type: string
+          enum: [ACTIVE, INACTIVE]
         created_at:
           type: string
           format: date-time
@@ -44,6 +47,7 @@ components:
         email: "jane@example.com"
         role: "MANAGER"
         is_active: true
+        status: "ACTIVE"
         created_at: "2026-05-06T14:00:00Z"
         updated_at: "2026-05-06T14:05:00Z"
 
@@ -110,7 +114,14 @@ paths:
           in: query
           schema:
             type: string
+            enum: [ADMIN, MANAGER, STUDENT]
           description: Filter by role
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [ACTIVE, INACTIVE]
+          description: Filter by user activity status
         - name: is_active
           in: query
           schema:
