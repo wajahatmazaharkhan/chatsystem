@@ -1,14 +1,4 @@
-/**
- * User controllers
- *
- * Responsible for read operations against the `User` model.
- * - Always hide `password_hash` and internal fields (`__v`, `_id`) from API output.
- * - Convert Mongo `_id` to `user_id` (string) for public APIs.
- * - Return timestamps as ISO 8601 UTC strings where applicable.
- *
- * Note: write operations (create/update/delete) are implemented elsewhere and must
- * enforce RBAC, hashing, and event publishing.
- */
+
 const mongoose = require('mongoose');
 const User = require('../../../schema/User');
 const UserStatus = require('../../../schema/UserStatus');
@@ -65,12 +55,6 @@ function sanitizeUser(doc, statusMap = {}) {
   return obj;
 }
 
-/**
- * POST /users
- * Creates a new user with hashed password.
- * Validates input, handles duplicate email,
- * and returns sanitized user (no password).
- */
 
 exports.createUser = async function createUser(req, res, next) {
   try {
@@ -116,12 +100,6 @@ exports.createUser = async function createUser(req, res, next) {
   }
 };
 
-/**
- * PATCH /users/:user_id/status
- * Updates is_active (enable/disable user).
- * Validates input, returns updated sanitized user.
- */
-
 exports.patchStatus = async function patchStatus(req, res, next) {
   try {
     const { user_id } = req.params;
@@ -166,16 +144,7 @@ exports.patchStatus = async function patchStatus(req, res, next) {
   }
 };
 
-/**
- * GET /users
- * Query params supported: role, status, is_active, page, limit, includeDeleted, fields
- * - role/status/is_active: filtering
- * - pagination: page (1-based), limit (max 100)
- * - includeDeleted: boolean (default false) — controls soft-deleted rows
- * - fields: comma-separated projection (returns only requested fields + user_id)
- *
- * Response: { items: [User], page, limit, total }
- */
+
 exports.listUsers = async function listUsers(req, res, next) {
   try {
     const { role, status, is_active, page = 1, limit = 25, includeDeleted = 'false', fields } = req.query;
@@ -237,12 +206,7 @@ exports.listUsers = async function listUsers(req, res, next) {
   }
 };
 
-/**
- * GET /users/:user_id
- * - Finds a user by the provided `user_id` (accepts Mongo ObjectId strings).
- * - Returns 400 when `user_id` missing, 404 when not found or soft-deleted.
- * - Sanitizes output (hides password_hash) and formats timestamps.
- */
+
 exports.getUser = async function getUser(req, res, next) {
   try {
     const { user_id } = req.params;
