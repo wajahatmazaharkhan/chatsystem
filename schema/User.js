@@ -48,4 +48,10 @@ UserSchema.pre(/^find/, function (next) {
   next();
 });
 
+// Indexes: enforce uniqueness at DB level and add common query indexes
+// Use collation for case-insensitive uniqueness on email
+UserSchema.index({ email: 1 }, { unique: true, collation: { locale: 'en', strength: 2 } });
+UserSchema.index({ role: 1 });
+UserSchema.index({ is_active: 1 });
+
 module.exports = mongoose.model('User', UserSchema);
