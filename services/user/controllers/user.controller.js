@@ -50,7 +50,6 @@ function sanitizeUser(doc, statusMap = {}) {
   const obj = doc.toObject ? doc.toObject() : { ...doc };
   const userId = obj._id ? obj._id.toString() : obj.user_id;
 
-  // UserStatus is the source of truth; fall back to is_active for older rows.
   obj.status = statusMap[userId] || (obj.is_active === false ? 'INACTIVE' : 'ACTIVE');
 
   // Map MongoDB `_id` to public `user_id` and remove internal fields
