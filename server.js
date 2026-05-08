@@ -2,7 +2,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 
 const chatRoutes = require("./routes/chatRoutes");
-const userRoutes = require("./routes/userRoutes");
 
 const app = express();
 
@@ -10,7 +9,6 @@ const app = express();
 app.use(express.json());
 
 // routes
-app.use("/users", userRoutes);
 app.use("/api/messages", chatRoutes);
 
 // MongoDB Atlas connection
