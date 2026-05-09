@@ -2,11 +2,17 @@
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
-const morgan = require("morgan");
+const rateLimit = require("express-rate-limit");
 
+const config = require("./config");
+const { requestTracer, auditLogger, requestLogger } = require("./middleware/logger");
 const authMiddleware = require("./middleware/authMiddleware");
 const allowRoles = require("./middleware/rbac");
+const errorHandler = require("./middleware/errorHandler");
+const responseFormatter = require("./middleware/responseFormatter");
 
+const healthRoutes = require("./routes/healthRoutes");
+const gatewayRoutes = require("./routes/gatewayRoutes");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const groupRoutes = require("./routes/groupRoutes");
@@ -17,142 +23,61 @@ const analyticsRoutes = require("./routes/analyticsRoutes");
 
 const app = express();
 
-/*
-  Global Middleware
-*/
-app.use(express.json());
-app.use(cors());
+const limiter = rateLimit({
+  windowMs: config.rateLimit.windowMs,
+  max: config.rateLimit.max,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "Too many requests, please try again later."
+  }
+});
+
+app.use(express.json({ limit: "100kb" }));
+app.use(express.urlencoded({ extended: false, limit: "100kb" }));
+app.use(cors(config.cors));
 app.use(helmet());
-app.use(morgan("dev"));
+app.use(requestTracer);
+app.use(requestLogger);
+app.use(auditLogger);
+app.use(limiter);
+app.use(responseFormatter);
 
-/*
-  Health Check Route
-*/
-app.get("/health", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "API Gateway running successfully"
-  });
+app.use((req, res, next) => {
+  if (["POST", "PUT", "PATCH"].includes(req.method) && req.headers["content-type"] && !req.is("application/json")) {
+    return res.error("Content-Type must be application/json", 415);
+  }
+
+  next();
 });
 
-/*
-  Gateway Status Route
-*/
-app.get("/gateway/status", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "Gateway active",
-    services: {
-      auth: process.env.AUTH_SERVICE,
-      users: process.env.USER_SERVICE,
-      groups: process.env.GROUP_SERVICE,
-      chat: process.env.CHAT_SERVICE,
-      activity: process.env.ACTIVITY_SERVICE,
-      status: process.env.STATUS_SERVICE,
-      analytics: process.env.ANALYTICS_SERVICE
-    }
-  });
-});
-
-/*
-  Auth Routes
-*/
+app.use("/health", healthRoutes);
+app.use("/gateway", gatewayRoutes);
 app.use("/v1/auth", authRoutes);
+app.use("/v1/users", authMiddleware, allowRoles("ADMIN"), userRoutes);
+app.use("/v1/groups", authMiddleware, allowRoles("ADMIN", "MANAGER"), groupRoutes);
+app.use("/v1/chat", authMiddleware, allowRoles("ADMIN", "MANAGER", "STUDENT"), chatRoutes);
+app.use("/v1/activity", authMiddleware, activityRoutes);
+app.use("/v1/status", authMiddleware, statusRoutes);
+app.use("/v1/analytics", authMiddleware, allowRoles("ADMIN", "MANAGER"), analyticsRoutes);
 
-/*
-  User Routes
-  ADMIN only
-*/
-app.use(
-  "/v1/users",
-  authMiddleware,
-  allowRoles("ADMIN"),
-  userRoutes
-);
-
-/*
-  Group Routes
-  ADMIN and MANAGER
-*/
-app.use(
-  "/v1/groups",
-  authMiddleware,
-  allowRoles("ADMIN", "MANAGER"),
-  groupRoutes
-);
-
-/*
-  Chat Routes
-  All authenticated users
-*/
-app.use(
-  "/v1/chat",
-  authMiddleware,
-  allowRoles("ADMIN", "MANAGER", "STUDENT"),
-  chatRoutes
-);
-
-/*
-  Activity Routes
-*/
-app.use(
-  "/v1/activity",
-  authMiddleware,
-  activityRoutes
-);
-
-/*
-  Status Routes
-*/
-app.use(
-  "/v1/status",
-  authMiddleware,
-  statusRoutes
-);
-
-/*
-  Analytics Routes
-  ADMIN and MANAGER only
-*/
-app.use(
-  "/v1/analytics",
-  authMiddleware,
-  allowRoles("ADMIN", "MANAGER"),
-  analyticsRoutes
-);
-
-/*
-  Default Route
-*/
 app.get("/", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "Welcome to Student Cohort API Gateway"
-  });
+  res.success({ gateway: "active" }, "API Gateway online");
 });
 
-/*
-  404 Route Handler
-*/
 app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "Route not found"
-  });
+  res.error("Route not found", 404);
 });
 
-/*
-  Global Error Handler
-*/
 app.use((err, req, res, next) => {
+  if (err.type === "entity.parse.failed") {
+    return res.error("Malformed JSON body", 400, err.message);
+  }
 
-  console.error(err);
-
-  res.status(500).json({
-    success: false,
-    message: "Internal Server Error"
-  });
-
+  next(err);
 });
+
+app.use(errorHandler);
 
 module.exports = app;
