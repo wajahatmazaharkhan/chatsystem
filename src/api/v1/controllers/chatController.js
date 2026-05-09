@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Message = require('../../../../schema/Message');
-const { sendMessage, getGroupHistory } = require('../services/chatServices');
+const { sendMessage, getGroupHistory } = require('../../../services/chatServices');
+const { getIo } = require('../../../socket');
 
 /**
  * POST /v1/chat/send
@@ -16,6 +17,13 @@ const send = async (req, res, next) => {
 
     try {
         const message = await sendMessage(group_id, user_id, content);
+
+        // Emit via Socket.io
+        try {
+            getIo().to(group_id.toString()).emit('receive_message', message);
+        } catch (socketErr) {
+            console.error('Socket error on send:', socketErr.message);
+        }
 
         // TODO (Integration): Emit event to Activity Module (Module 5) here.
 
@@ -74,6 +82,13 @@ const remove = async (req, res, next) => {
 
         message.deleted_at = new Date();
         await message.save();
+
+        // Emit delete via Socket.io
+        try {
+            getIo().to(message.group_id.toString()).emit('message_deleted', { message_id });
+        } catch (socketErr) {
+            console.error('Socket error on delete:', socketErr.message);
+        }
 
         return res.status(204).send();
     } catch (err) {
