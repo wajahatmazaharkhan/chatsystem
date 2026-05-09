@@ -45,6 +45,9 @@ const UserStatusSchema = new mongoose.Schema(
 );
 
 // Dashboard active/inactive filtering
-UserStatusSchema.index({ status: 1 });
+UserStatusSchema.index({ user_id: 1 }, { unique: true }); // primary lookup
+UserStatusSchema.index({ status: 1 });                     // dashboard filter
+UserStatusSchema.index({ group_id: 1, status: 1 });        // group summary
+UserStatusSchema.index({ evaluated_at: -1 });              // stale record detection
 
 module.exports = mongoose.model('UserStatus', UserStatusSchema);

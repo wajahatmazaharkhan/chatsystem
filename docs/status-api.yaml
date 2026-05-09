@@ -1,0 +1,264 @@
+openapi: 3.0.3
+info:
+  title: Student Status Engine API (Module 6)
+  version: 1.0.0
+  description: >-
+    Classification engine that evaluates student activity and returns ACTIVE/INACTIVE
+    status. A student is ACTIVE if they have performed any action (login, message,
+    interaction) in the last 48 hours. Otherwise they are marked INACTIVE.
+
+    **Auth:** All endpoints require a valid Bearer JWT. Only ADMIN and MANAGER roles
+    are permitted — students cannot call these endpoints (403 returned).
+
+    **Module 5 dependency:** Activity data is read from the ActivityLog collection
+    populated by Module 5. The last recorded `timestamp` for a student is used
+    as their "last active" time.
+
+servers:
+  - url: http://localhost:3000
+    description: Local dev server
+  - url: /status
+    description: Relative mount path (via API gateway)
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    StudentStatus:
+      type: object
+      description: Result of evaluating a single student's activity status
+      properties:
+        user_id:
+          type: string
+          description: MongoDB ObjectId of the student
+          example: "643f1f7a9b1d4a3b2c0e1234"
+        group_id:
+          type: string
+          nullable: true
+          description: Group from the student's last activity (null if no activity logged)
+          example: "643f1f7a9b1d4a3b2c0e5678"
+        status:
+          type: string
+          enum: [ACTIVE, INACTIVE]
+          description: >-
+            ACTIVE = last activity within 48 hrs.
+            INACTIVE = no activity in 48+ hrs (or never active).
+          example: "ACTIVE"
+        last_active_at:
+          type: string
+          format: date-time
+          description: >-
+            Timestamp of the student's most recent logged activity.
+            Defaults to epoch (1970-01-01) for brand-new students with no activity.
+          example: "2026-05-08T10:30:00.000Z"
+        evaluated_at:
+          type: string
+          format: date-time
+          description: When this status evaluation was run
+          example: "2026-05-09T12:00:00.000Z"
+        threshold_hours:
+          type: number
+          description: The inactivity threshold used (default 48, configurable via env)
+          example: 48
+        status_changed_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: When the status last transitioned (ACTIVE→INACTIVE or vice versa). Null if never changed.
+          example: "2026-05-07T08:00:00.000Z"
+        transition_count:
+          type: integer
+          description: Number of times this student's status has flipped — useful engagement signal
+          example: 3
+
+    GroupStatusSummary:
+      type: object
+      description: Aggregated status summary for all members of a group
+      properties:
+        group_id:
+          type: string
+          example: "643f1f7a9b1d4a3b2c0e5678"
+        total_students:
+          type: integer
+          example: 6
+        active_students:
+          type: integer
+          example: 4
+        inactive_students:
+          type: integer
+          example: 2
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentStatus'
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Group not found"
+
+security:
+  - bearerAuth: []
+
+paths:
+  /status/user/{id}:
+    get:
+      summary: Get one student's activity status
+      description: >-
+        Evaluates and returns the ACTIVE/INACTIVE classification for a single student.
+
+        **How it works:**
+        1. Looks up the student's latest entry in the ActivityLog (populated by Module 5).
+        2. Computes the hours since that activity.
+        3. If > 48 hrs (or no activity at all) → INACTIVE. Otherwise → ACTIVE.
+        4. Persists the result to the UserStatus collection and returns it.
+
+        **New student edge case:** If the student has no activity logs yet, `last_active_at`
+        is set to the Unix epoch (1970-01-01). They will be classified as INACTIVE.
+
+        **Exactly-48-hr edge case:** The check is strictly `> 48 hrs`, so a student who
+        acted exactly 48 hrs ago is still ACTIVE.
+
+      tags: [Status]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: MongoDB ObjectId of the student
+          schema:
+            type: string
+          example: "643f1f7a9b1d4a3b2c0e1234"
+      responses:
+        '200':
+          description: Status successfully evaluated and returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentStatus'
+              examples:
+                active_student:
+                  summary: Student was active 2 hrs ago
+                  value:
+                    user_id: "643f1f7a9b1d4a3b2c0e1234"
+                    group_id: "643f1f7a9b1d4a3b2c0e5678"
+                    status: "ACTIVE"
+                    last_active_at: "2026-05-09T10:00:00.000Z"
+                    evaluated_at: "2026-05-09T12:00:00.000Z"
+                    threshold_hours: 48
+                    status_changed_at: null
+                    transition_count: 0
+                inactive_new_student:
+                  summary: Brand-new student, no activity yet
+                  value:
+                    user_id: "643f1f7a9b1d4a3b2c0e9999"
+                    group_id: null
+                    status: "INACTIVE"
+                    last_active_at: "1970-01-01T00:00:00.000Z"
+                    evaluated_at: "2026-05-09T12:00:00.000Z"
+                    threshold_hours: 48
+                    status_changed_at: null
+                    transition_count: 0
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Missing Bearer token"
+        '403':
+          description: Forbidden — STUDENT role cannot access this endpoint
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Access denied"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /status/group/{id}:
+    get:
+      summary: Get activity status summary for a group
+      description: >-
+        Evaluates every member of the specified group and returns an aggregated
+        ACTIVE/INACTIVE count plus per-student detail.
+
+        Groups have a max of 7 members (enforced at schema level). Each member
+        is independently evaluated using the same 48-hr classification logic.
+
+        **Use this endpoint** in the Module 7 dashboard to show which students
+        in a coaching group need follow-up.
+
+      tags: [Status]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: MongoDB ObjectId of the group
+          schema:
+            type: string
+          example: "643f1f7a9b1d4a3b2c0e5678"
+      responses:
+        '200':
+          description: Group status summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupStatusSummary'
+              example:
+                group_id: "643f1f7a9b1d4a3b2c0e5678"
+                total_students: 4
+                active_students: 3
+                inactive_students: 1
+                students:
+                  - user_id: "643f1f7a9b1d4a3b2c0e0001"
+                    status: "ACTIVE"
+                    last_active_at: "2026-05-09T08:00:00.000Z"
+                    evaluated_at: "2026-05-09T12:00:00.000Z"
+                    threshold_hours: 48
+                    status_changed_at: null
+                    transition_count: 0
+                  - user_id: "643f1f7a9b1d4a3b2c0e0002"
+                    status: "INACTIVE"
+                    last_active_at: "2026-05-06T07:00:00.000Z"
+                    evaluated_at: "2026-05-09T12:00:00.000Z"
+                    threshold_hours: 48
+                    status_changed_at: "2026-05-08T07:00:00.000Z"
+                    transition_count: 1
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Group not found or internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Group not found"
+
+tags:
+  - name: Status
+    description: >-
+      Module 6 — Student Activity Classification Engine.
+      Consumed by Module 7 (Dashboard). Depends on Module 5 (Activity Logger).

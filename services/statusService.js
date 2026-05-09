@@ -1,6 +1,6 @@
-const ActivityLog = require("../../schema/ActivityLog");
-const UserStatus = require("../../schema/UserStatus");
-const Group = require("../../schema/Group");
+const ActivityLog = require("../schema/ActivityLog");
+const UserStatus  = require("../schema/UserStatus");
+const Group       = require("../schema/Group");
 
 const THRESHOLD_HOURS =
   process.env.THRESHOLD_HOURS || 96;
