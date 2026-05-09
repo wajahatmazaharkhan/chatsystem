@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+require("dotenv").config();
 
 const chatRoutes = require("./routes/chatRoutes");
 
@@ -11,8 +12,8 @@ app.use(express.json());
 // routes
 app.use("/api/messages", chatRoutes);
 
-// MongoDB Atlas connection
-mongoose.connect("mongodb+srv://riya:riyarani@cluster0.rkwgi47.mongodb.net/chatdb?retryWrites=true&w=majority")
+// MongoDB connection (ONLY THIS)
+mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log("DB connected");
 
