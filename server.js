@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 
 const chatRoutes = require("./routes/chatRoutes");
+const statusRoutes = require("./routes/statusRoutes"); // ✅ Module 6 added
 
 const app = express();
 
@@ -10,6 +11,7 @@ app.use(express.json());
 
 // routes
 app.use("/api/messages", chatRoutes);
+app.use("/status", statusRoutes); // ✅ Module 6 API
 
 // MongoDB Atlas connection
 mongoose.connect("mongodb+srv://riya:riyarani@cluster0.rkwgi47.mongodb.net/chatdb?retryWrites=true&w=majority")
