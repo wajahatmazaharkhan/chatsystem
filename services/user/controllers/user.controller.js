@@ -70,9 +70,7 @@ exports.createUser = async function createUser(req, res, next) {
 
     // Normalize and validate email and role
     const emailNorm = String(email).trim().toLowerCase();
-    if (!allowedRoles.includes(role)) {
-      return res.status(400).json({ code: 'ERR_VALIDATION', message: 'Invalid role' });
-    }
+    const roleNorm = validateEnum(role, ALLOWED_ROLES, 'role');
 
     // Hash password before storing to avoid plain-text storage
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -81,7 +79,7 @@ exports.createUser = async function createUser(req, res, next) {
       name,
       email: emailNorm,
       password_hash: hashedPassword,
-      role
+      role: roleNorm
     });
 
     // Return only public user_id per contract (do not return password_hash or other fields)
@@ -96,6 +94,7 @@ exports.createUser = async function createUser(req, res, next) {
       });
     }
 
+    console.error('createUser error:', err && err.stack ? err.stack : err);
     next(err);
   }
 };
