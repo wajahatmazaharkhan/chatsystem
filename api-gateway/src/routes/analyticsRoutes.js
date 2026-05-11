@@ -1,30 +1,29 @@
-const express = require("express");
-const axios = require("axios");
+const router =
+  require("express").Router();
 
-const router = express.Router();
+const controller =
+  require("../controllers/analyticsController");
 
-router.use(async (req, res) => {
+/*
+==================================================
+ADMIN DASHBOARD
+==================================================
+*/
 
-    try {
+router.get(
+  "/admin",
+  controller.getAdminAnalytics
+);
 
-        const response = await axios({
-            method: req.method,
-            url: `${process.env.ANALYTICS_SERVICE}${req.originalUrl}`,
-            data: req.body,
-            headers: req.headers
-        });
+/*
+==================================================
+GROUP DASHBOARD
+==================================================
+*/
 
-        res.status(response.status).json(response.data);
-
-    } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            message: "Analytics service unavailable"
-        });
-
-    }
-
-});
+router.get(
+  "/group/:id",
+  controller.getGroupAnalytics
+);
 
 module.exports = router;

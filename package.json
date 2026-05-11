@@ -1,26 +1,41 @@
 {
   "name": "chatsystem",
   "version": "1.0.0",
-  "description": "��#\u0000 \u0000c\u0000h\u0000a\u0000t\u0000s\u0000y\u0000s\u0000t\u0000e\u0000m\u0000\r\u0000 \u0000",
+  "description": "Student cohort monitoring system",
   "main": "server.js",
+
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
+
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wajahatmazaharkhan/chatsystem.git"
   },
+
   "keywords": [],
+
   "author": "",
+
   "license": "ISC",
+
   "type": "commonjs",
+
   "bugs": {
     "url": "https://github.com/wajahatmazaharkhan/chatsystem/issues"
   },
+
   "homepage": "https://github.com/wajahatmazaharkhan/chatsystem#readme",
+
   "dependencies": {
+    "axios": "^1.7.2",
+    "dotenv": "^16.4.5",
     "express": "^5.2.1",
     "mongoose": "^9.6.1"
+  },
+
+  "devDependencies": {
+    "nodemon": "^3.1.4"
   }
 }
