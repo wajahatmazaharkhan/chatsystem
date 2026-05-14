@@ -1,4 +1,4 @@
-const Group = require('../../../schema/Group');
+const Group = require('../../schema/Group');
 
 // NOTE: During development, group membership is checked directly from MongoDB.
 // For integration with Module 3 (Group), swap this out with the axios call to /groups/:id/members.
@@ -30,4 +30,4 @@ const checkGroupAccess = async (req, res, next) => {
     }
 };
 
-module.exports = checkGroupAccess;
+module.exports = checkGroupAccess;

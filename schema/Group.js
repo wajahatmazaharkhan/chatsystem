@@ -63,11 +63,10 @@ GroupSchema.index({ manager_id: 1 }, { sparse: true });
 GroupSchema.index({ members: 1 });
 
 // Soft-delete middleware
-GroupSchema.pre(/^find/, function (next) {
+GroupSchema.pre(/^find/, function () {
   if (!this.getOptions().includeDeleted) {
     this.where({ deleted_at: null });
   }
-  next();
 });
 
 module.exports = mongoose.model('Group', GroupSchema);
