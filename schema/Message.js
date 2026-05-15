@@ -35,11 +35,10 @@ const MessageSchema = new mongoose.Schema(
 MessageSchema.index({ group_id: 1, sent_at: -1 });
 
 // Soft-delete middleware
-MessageSchema.pre(/^find/, function (next) {
+MessageSchema.pre(/^find/, function () {
   if (!this.getOptions().includeDeleted) {
     this.where({ deleted_at: null });
   }
-  next();
 });
 
 module.exports = mongoose.model('Message', MessageSchema);

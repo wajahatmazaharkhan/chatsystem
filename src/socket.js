@@ -1,5 +1,6 @@
 const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
+const Group = require('../schema/Group')
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret';
 let io;
@@ -31,15 +32,28 @@ const initSocket = (server) => {
         console.log(`🔌 Client connected: ${socket.id} (User: ${socket.user.user_id})`);
 
         // Client joins a specific group room
-        socket.on('join_group', (groupId) => {
-            // NOTE: In a real app, verify they are a member of this group first.
-            socket.join(groupId);
-            console.log(`User ${socket.user.user_id} joined room ${groupId}`);
+        socket.on('join_group', async(groupId) => {
+
+            try{
+                const group = await Group.findOne({
+                    _id: groupId,
+                    members: socket.user.user_id
+                });
+
+                if (!group) {
+                    return socket.emit('error_message', 'Not allowed');
+                }
+                socket.join(groupId.toString());
+                console.log(`User ${socket.user.user_id} joined room ${groupId}`);
+            }catch (err) {
+                console.log("Socket error:", err.message);
+                socket.emit('error_message', 'Server error');
+            }
         });
 
         // Client leaves a group room
         socket.on('leave_group', (groupId) => {
-            socket.leave(groupId);
+            socket.leave(groupId.toString());
             console.log(`User ${socket.user.user_id} left room ${groupId}`);
         });
 

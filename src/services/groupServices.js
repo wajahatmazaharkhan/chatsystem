@@ -1,4 +1,6 @@
 const Group = require('../../schema/Group');
+const User = require('../../schema/User');
+const Batch = require('../../schema/Batch');
 
 const createGroup = async (groupData) => {
     const group = new Group(groupData);

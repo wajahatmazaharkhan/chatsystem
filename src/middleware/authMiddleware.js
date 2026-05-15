@@ -16,15 +16,18 @@ const validateAuth = (req, res, next) => {
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
 
-        req.user = {
-            user_id: decoded.user_id,
-            role: decoded.role
-        };
+        const { user_id, role } = decoded;
 
+        const user = {
+            user_id: user_id,
+            role: role
+        }
+
+        req.user = user;
         next();
     } catch (error) {
         return res.status(401).json({ error: "Authentication failed: Invalid or expired token" });
     }
 };
 
-module.exports = validateAuth;
+module.exports = validateAuth;
