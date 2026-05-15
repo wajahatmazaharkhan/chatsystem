@@ -1,4 +1,4 @@
-const Message = require('../../../schema/Message');
+const Message = require('../../schema/Message');
 
 /**
  * Saves a new message to the database.

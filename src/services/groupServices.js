@@ -1,4 +1,4 @@
-const Group = require('../../../schema/Group');
+const Group = require('../../schema/Group');
 
 const createGroup = async (groupData) => {
     const group = new Group(groupData);
