@@ -1,30 +1,14 @@
-const express = require("express");
-const axios = require("axios");
+const router = require("express").Router();
+const controller = require("../controllers/statusController");
 
-const router = express.Router();
+router.get("/user/:id", controller.getStudentStatus);
 
-router.use(async (req, res) => {
+router.get("/group/:id", controller.getGroupStatus);
 
-    try {
+router.get("/all", controller.getAllStatuses);
 
-        const response = await axios({
-            method: req.method,
-            url: `${process.env.STATUS_SERVICE}${req.originalUrl}`,
-            data: req.body,
-            headers: req.headers
-        });
+router.post("/classify", controller.classifyUsers);
 
-        res.status(response.status).json(response.data);
-
-    } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            message: "Status service unavailable"
-        });
-
-    }
-
-});
+router.patch("/threshold", controller.updateThreshold);
 
 module.exports = router;

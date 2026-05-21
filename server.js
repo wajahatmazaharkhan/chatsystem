@@ -11,8 +11,7 @@ app.use(express.json());
 
 // routes
 app.use("/api/messages", chatRoutes);
-app.use("/status", statusRoutes); // ✅ Module 6 API
-
+app.use("/v1/status", statusRoutes);
 // MongoDB Atlas connection
 mongoose.connect("mongodb+srv://riya:riyarani@cluster0.rkwgi47.mongodb.net/chatdb?retryWrites=true&w=majority")
   .then(() => {
