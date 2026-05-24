@@ -1,0 +1,10 @@
+@tailwind utilities;
+
+body{
+margin:0;
+padding:0;
+box-sizing:border-box;
+background:#F4F6FB;
+font-family:Inter,sans-serif;
+}
+
