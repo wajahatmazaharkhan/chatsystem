@@ -1,5 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const cors = require('cors');
 const connectDB = require('./config/db');
 const batchRoutes = require('./routes/batchRoutes');
 const groupRoutes = require('./routes/groupRoutes');
@@ -9,6 +10,13 @@ dotenv.config();
 connectDB();
 
 const app = express();
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 
 app.use('/v1/batches', batchRoutes);
