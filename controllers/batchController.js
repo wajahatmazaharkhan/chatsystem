@@ -1,5 +1,6 @@
 const Batch = require('../models/Batch');
 const Group = require('../models/Group');
+const User = require('../schema/User');
 const { chunkIntoGroups, buildGroupDocuments } = require('../services/groupingService');
 
 const createBatch = async (req, res) => {
@@ -45,14 +46,28 @@ const getAllBatches = async (req, res) => {
 
 const getBatchById = async (req, res) => {
   try {
-    const batch = await Batch.findById(req.params.batch_id);
+    const batch = await Batch.findById(req.params.batch_id).lean();
     if (!batch) return res.status(404).json({ error: 'Batch not found' });
 
-    const groups = await Group.find({ batch_id: batch._id });
+    const groups = await Group.find({ batch_id: batch._id }).lean();
+
+    const mongoose = require('mongoose');
+    const managerIdsRaw = [...new Set(groups.map(g => g.manager_id).filter(Boolean))];
+    const managerIds = managerIdsRaw.filter(id => mongoose.Types.ObjectId.isValid(id));
+    const managers = await User.find({ _id: { $in: managerIds } }, 'name').lean();
+    const managerMap = managers.reduce((acc, m) => {
+      acc[m._id.toString()] = m.name;
+      return acc;
+    }, {});
+
+    const groupsWithNames = groups.map(g => ({
+      ...g,
+      manager_name: g.manager_id ? managerMap[g.manager_id.toString()] || null : null
+    }));
 
     return res.status(200).json({
       batch,
-      groups,
+      groups: groupsWithNames,
       total_groups: groups.length,
     });
   } catch (err) {

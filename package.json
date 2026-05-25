@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "NODE_ENV=development nodemon index.js",
-    "test": "NODE_ENV=test node tests/module3.test.js",
-    "test:integration": "NODE_ENV=test node tests/integration.test.js"
+    "dev": "cross-env NODE_ENV=development nodemon index.js",
+    "test": "cross-env NODE_ENV=test node tests/module3.test.js",
+    "test:integration": "cross-env NODE_ENV=test node tests/integration.test.js"
   },
   "keywords": [
     "batch",
@@ -24,6 +24,7 @@
     "cors": "^2.8.6"
   },
   "devDependencies": {
-    "nodemon": "^2.0.20"
+    "nodemon": "^2.0.20",
+    "cross-env": "^7.0.3"
   }
 }

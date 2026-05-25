@@ -15,7 +15,7 @@ export default function GroupCard({ group }) {
 
             <p className="mt-2">
                 Manager:{" "}
-                {group.manager_id ? group.manager_id : "Not Assigned"}
+                {group.manager_name ? group.manager_name : group.manager_id ? group.manager_id : "Not Assigned"}
             </p>
 
             <button

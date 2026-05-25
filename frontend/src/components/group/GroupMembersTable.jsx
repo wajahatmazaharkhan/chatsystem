@@ -25,7 +25,9 @@ export default function GroupMembersTable({ groups }) {
               </td>
 
               <td className="text-center">
-                {group.manager_id
+                {group.manager_name
+                  ? group.manager_name
+                  : group.manager_id
                   ? group.manager_id
                   : "Not Assigned"}
               </td>

@@ -51,7 +51,7 @@ export default function GroupDetails() {
           Manager
 
           <p>
-            {group.manager_id || "Not Assigned"}
+            {group.manager_name || group.manager_id || "Not Assigned"}
           </p>
         </div>
       </div>
@@ -61,7 +61,14 @@ export default function GroupDetails() {
           Students
         </h2>
 
-        {group.members.map((member) => (
+        {group.member_details ? group.member_details.map((member) => (
+          <div
+            key={member._id}
+            className="py-2 border-b"
+          >
+            {member.name}
+          </div>
+        )) : group.members.map((member) => (
           <div
             key={member}
             className="py-2 border-b"

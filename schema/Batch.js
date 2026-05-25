@@ -7,6 +7,10 @@ const BatchSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    student_ids: {
+      type: [String],
+      default: [],
+    },
     created_by: {
       type: String,
       required: true,
