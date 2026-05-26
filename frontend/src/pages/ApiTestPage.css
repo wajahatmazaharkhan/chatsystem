@@ -1,0 +1,162 @@
+.section-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.api-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.api-panel-header {
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-family: var(--mono);
+  background: var(--bg);
+}
+
+.api-endpoint-list {
+  padding: 10px 0;
+}
+
+.api-endpoint {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 18px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.api-endpoint:last-child {
+  border-bottom: none;
+}
+
+.api-endpoint:hover {
+  background: var(--bg);
+}
+
+.api-endpoint.selected {
+  background: #f0f0ed;
+}
+
+.method {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 3px;
+  min-width: 48px;
+  text-align: center;
+}
+
+.method.GET {
+  background: #e8f4fd;
+  color: #1565c0;
+}
+
+.method.POST {
+  background: #edf7ed;
+  color: #2e7d32;
+}
+
+.method.PATCH {
+  background: #fff8e1;
+  color: #f57f17;
+}
+
+.ep-path {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+.ep-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+/* Response box */
+.response-box {
+  background: #1a1a18;
+  color: #e8e8e4;
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 16px 18px;
+  border-top: 1px solid var(--border);
+  line-height: 1.7;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.response-loading {
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.response-json {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #b5e8a0;
+}
+
+.response-error {
+  color: #e07070;
+}
+
+/* Integration panel */
+.integration-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 20px;
+}
+
+.integration-header {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-family: var(--mono);
+}
+
+.integration-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.integration-table tr {
+  border-bottom: 1px solid var(--border);
+}
+
+.integration-table tr:last-child {
+  border-bottom: none;
+}
+
+.note-label {
+  padding: 8px 0;
+  color: var(--text-muted);
+  width: 180px;
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.note-value {
+  padding: 8px 0;
+}

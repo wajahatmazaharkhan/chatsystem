@@ -1,0 +1,35 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&family=Inter:wght@400;500;600;700&display=swap');
+
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background: #F4F6FB;
+  font-family: Inter, sans-serif;
+  color: #1a1a18;
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Base custom variables retained from previous design for components that might still need them, although we'll transition to Tailwind classes where possible */
+:root {
+  --bg: #F4F6FB;
+  --surface: #ffffff;
+  --border: #e0e0dc;
+  --text-primary: #1a1a18;
+  --text-secondary: #6b6b66;
+  --text-muted: #a0a09a;
+  --active: #2d6a4f;
+  --active-bg: #eaf4ef;
+  --inactive: #9b2335;
+  --inactive-bg: #fdf0f2;
+  --accent: #1a1a18;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'Inter', sans-serif;
+}
