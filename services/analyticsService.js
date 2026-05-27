@@ -4,7 +4,7 @@ const UserStatus = require("../schema/UserStatus");
 
 const {
   calculateEngagementRate,
-} = require("../utils/metricsHelper");
+} = require("./metricsHelper");
 
 /*
 ==================================================

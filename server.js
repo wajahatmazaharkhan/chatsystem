@@ -37,26 +37,17 @@ app.use("/analytics", analyticsRoutes);
 DATABASE CONNECTION
 ==================================================
 */
+require('dotenv').config();
+const PORT = process.env.PORT || 3000;
+const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://riya:riyarani@cluster0.rkwgi47.mongodb.net/chatdb?retryWrites=true&w=majority";
 
-mongoose.connect(
-  "mongodb+srv://riya:riyarani@cluster0.rkwgi47.mongodb.net/chatdb?retryWrites=true&w=majority"
-)
+mongoose.connect(MONGO_URI)
 .then(() => {
-
   console.log("DB connected");
-
-  app.listen(3000, () => {
-
-    console.log(
-      "Server running on port 3000"
-    );
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
   });
-
 })
 .catch((err) => {
-
-  console.log(
-    "DB connection error:",
-    err
-  );
+  console.log("DB connection error:", err);
 });
