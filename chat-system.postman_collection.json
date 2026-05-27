@@ -1,0 +1,88 @@
+{
+	"info": {
+		"_postman_id": "8a7bd8c9-026c-4860-95b8-5f9037c8651f",
+		"name": "Student Cohort Chat System Module 4",
+		"description": "Postman collection for testing the student cohort chat system module 4 APIs.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Send Message",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"group_id\": \"{{groupId}}\",\n  \"content\": \"Hello group members! This is a test message.\"\n}"
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/messages/send",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"messages",
+						"send"
+					]
+				},
+				"description": "Send a message to a group. Requires the sender to be authenticated and to belong to the group (unless they are an ADMIN)."
+			},
+			"response": []
+		},
+		{
+			"name": "Fetch Messages",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseURL}}/api/messages/{{groupId}}",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"messages",
+						"{{groupId}}"
+					]
+				},
+				"description": "Fetch all messages for a specific group. Requires the caller to be authenticated and to belong to the group (unless they are an ADMIN)."
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "your_jwt_token_here",
+			"type": "string"
+		},
+		{
+			"key": "groupId",
+			"value": "60d07f613116a41f681a5c43",
+			"type": "string"
+		}
+	]
+}
