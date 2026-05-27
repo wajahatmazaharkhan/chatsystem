@@ -1,11 +1,11 @@
 .sidebar {
-  width: 220px;
+  width: 240px;
   background: var(--surface);
   border-right: 1px solid var(--border);
-  padding: 28px 0;
+  padding: 32px 0;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 6px;
   position: sticky;
   top: 0;
   height: 100vh;
@@ -13,52 +13,63 @@
 }
 
 .sidebar-brand {
-  padding: 0 20px 24px;
+  padding: 0 24px 28px;
   border-bottom: 1px solid var(--border);
-  margin-bottom: 12px;
+  margin-bottom: 20px;
 }
 
 .sidebar-brand .mod-label {
   font-family: var(--mono);
   font-size: 10px;
-  color: var(--text-muted);
-  letter-spacing: 0.08em;
+  color: var(--accent);
+  letter-spacing: 0.12em;
   text-transform: uppercase;
+  font-weight: 600;
 }
 
 .sidebar-brand .mod-name {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   color: var(--text-primary);
-  margin-top: 2px;
+  margin-top: 4px;
+  background: linear-gradient(135deg, #ffffff 30%, #a1a1aa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 9px 20px;
+  gap: 12px;
+  padding: 12px 24px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-secondary);
-  border-left: 2px solid transparent;
-  transition: all 0.15s;
+  border-left: 3px solid transparent;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
+  font-weight: 500;
 }
 
 .nav-item:hover {
-  background: #f0f0ed;
+  background: rgba(255, 255, 255, 0.02);
   color: var(--text-primary);
+  padding-left: 28px;
 }
 
 .nav-item.active {
   color: var(--text-primary);
   border-left-color: var(--accent);
-  background: #f0f0ed;
-  font-weight: 500;
+  background: rgba(139, 92, 246, 0.06);
+  font-weight: 600;
 }
 
 .nav-icon {
-  font-size: 14px;
-  opacity: 0.7;
+  font-size: 16px;
+  color: var(--text-muted);
+  transition: color 0.2s;
+}
+
+.nav-item.active .nav-icon {
+  color: var(--accent);
 }

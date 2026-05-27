@@ -1,40 +1,41 @@
 .section-hint {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
 }
 
 .api-panel {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 12px;
   overflow: hidden;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
 .api-panel-header {
-  padding: 12px 18px;
+  padding: 16px 24px;
   border-bottom: 1px solid var(--border);
   font-size: 12px;
   font-weight: 600;
   color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.08em;
   font-family: var(--mono);
-  background: var(--bg);
+  background: rgba(255, 255, 255, 0.01);
 }
 
 .api-endpoint-list {
-  padding: 10px 0;
+  padding: 8px 0;
 }
 
 .api-endpoint {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 18px;
+  gap: 16px;
+  padding: 12px 24px;
   border-bottom: 1px solid var(--border);
   cursor: pointer;
-  transition: background 0.1s;
+  transition: all 0.2s;
 }
 
 .api-endpoint:last-child {
@@ -42,60 +43,65 @@
 }
 
 .api-endpoint:hover {
-  background: var(--bg);
+  background: var(--surface-hover);
 }
 
 .api-endpoint.selected {
-  background: #f0f0ed;
+  background: rgba(139, 92, 246, 0.06);
 }
 
 .method {
   font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 7px;
-  border-radius: 3px;
-  min-width: 48px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  min-width: 54px;
   text-align: center;
+  letter-spacing: 0.02em;
 }
 
 .method.GET {
-  background: #e8f4fd;
-  color: #1565c0;
+  background: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 .method.POST {
-  background: #edf7ed;
-  color: #2e7d32;
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
 .method.PATCH {
-  background: #fff8e1;
-  color: #f57f17;
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.2);
 }
 
 .ep-path {
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-primary);
+  font-weight: 500;
 }
 
 .ep-desc {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
   margin-left: auto;
 }
 
 /* Response box */
 .response-box {
-  background: #1a1a18;
-  color: #e8e8e4;
+  background: #06070a;
+  color: #e4e4e7;
   font-family: var(--mono);
-  font-size: 12px;
-  padding: 16px 18px;
+  font-size: 13px;
+  padding: 20px 24px;
   border-top: 1px solid var(--border);
-  line-height: 1.7;
-  max-height: 400px;
+  line-height: 1.6;
+  max-height: 450px;
   overflow-y: auto;
 }
 
@@ -103,42 +109,48 @@
   color: var(--text-muted);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  font-size: 13px;
 }
 
 .response-json {
   margin: 0;
   white-space: pre-wrap;
   word-break: break-word;
-  color: #b5e8a0;
+  color: #34d399;
 }
 
 .response-error {
-  color: #e07070;
+  color: var(--inactive);
+  background: rgba(244, 63, 94, 0.05);
+  border: 1px solid rgba(244, 63, 94, 0.15);
+  padding: 10px 14px;
+  border-radius: 6px;
 }
 
 /* Integration panel */
 .integration-panel {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 20px;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
 .integration-header {
   font-size: 12px;
   font-weight: 600;
   color: var(--text-secondary);
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.08em;
   font-family: var(--mono);
 }
 
 .integration-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .integration-table tr {
@@ -150,13 +162,17 @@
 }
 
 .note-label {
-  padding: 8px 0;
+  padding: 12px 0;
   color: var(--text-muted);
-  width: 180px;
+  width: 220px;
   font-family: var(--mono);
   font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .note-value {
-  padding: 8px 0;
+  padding: 12px 0;
+  color: var(--text-primary);
+  font-weight: 500;
 }

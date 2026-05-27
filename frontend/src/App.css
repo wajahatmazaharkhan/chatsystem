@@ -1,6 +1,9 @@
 .app {
   display: flex;
   min-height: 100vh;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.07) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.04) 0px, transparent 50%);
 }
 
 .main {
@@ -12,6 +15,6 @@
 
 .content {
   flex: 1;
-  padding: 24px 28px;
+  padding: 28px 32px;
   overflow-y: auto;
 }

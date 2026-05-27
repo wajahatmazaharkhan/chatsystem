@@ -52,19 +52,22 @@ export default function GroupStatusView({ users, onRefresh }) {
                 const total = g.members.length;
                 const pct = total ? Math.round((active / total) * 100) : 0;
 
-                let groupStatus, gsColor, gsBg;
+                let groupStatus, gsColor, gsBg, borderCol;
                 if (pct >= 70) {
                   groupStatus = 'HEALTHY';
                   gsColor = 'var(--active)';
                   gsBg = 'var(--active-bg)';
+                  borderCol = 'rgba(16, 185, 129, 0.15)';
                 } else if (pct >= 40) {
                   groupStatus = 'AT RISK';
-                  gsColor = '#b45309';
-                  gsBg = '#fff8e1';
+                  gsColor = '#fb923c';
+                  gsBg = 'rgba(251, 146, 60, 0.12)';
+                  borderCol = 'rgba(251, 146, 60, 0.15)';
                 } else {
                   groupStatus = 'CRITICAL';
                   gsColor = 'var(--inactive)';
                   gsBg = 'var(--inactive-bg)';
+                  borderCol = 'rgba(244, 63, 94, 0.15)';
                 }
 
                 return (
@@ -72,8 +75,8 @@ export default function GroupStatusView({ users, onRefresh }) {
                     <td><span className="uid">{g.group_id}</span></td>
                     <td>{g.group_name}</td>
                     <td><span className="uid">{total}</span></td>
-                    <td style={{ color: 'var(--active)', fontFamily: 'var(--mono)' }}>{active}</td>
-                    <td style={{ color: 'var(--inactive)', fontFamily: 'var(--mono)' }}>{inactive}</td>
+                    <td style={{ color: 'var(--active)', fontFamily: 'var(--mono)', fontWeight: '600' }}>{active}</td>
+                    <td style={{ color: 'var(--inactive)', fontFamily: 'var(--mono)', fontWeight: '600' }}>{inactive}</td>
                     <td>
                       <div className="progress-cell">
                         <div className="progress-bar-wrap">
@@ -83,7 +86,7 @@ export default function GroupStatusView({ users, onRefresh }) {
                       </div>
                     </td>
                     <td>
-                      <span className="status-badge" style={{ background: gsBg, color: gsColor }}>
+                      <span className="status-badge" style={{ background: gsBg, color: gsColor, border: `1px solid ${borderCol}` }}>
                         {groupStatus}
                       </span>
                     </td>

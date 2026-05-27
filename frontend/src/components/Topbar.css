@@ -1,34 +1,39 @@
 .topbar {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  padding: 16px 28px;
+  padding: 18px 32px;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
 .topbar-title {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
+  color: var(--text-primary);
 }
 
 .topbar-right {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
 }
 
 .topbar-meta {
   font-family: var(--mono);
   font-size: 11px;
   color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.02);
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
 }
 
 .threshold-control {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 12px;
+  gap: 12px;
+  font-size: 13px;
   color: var(--text-secondary);
 }
 
@@ -37,40 +42,59 @@
 }
 
 .threshold-control input[type="number"] {
-  width: 56px;
+  width: 64px;
   border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 4px 8px;
+  border-radius: 6px;
+  padding: 6px 10px;
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 13px;
   background: var(--bg);
   color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.threshold-control input[type="number"]:focus {
+  border-color: var(--accent);
 }
 
 .threshold-control select {
   border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 4px 8px;
+  border-radius: 6px;
+  padding: 6px 10px;
   font-family: var(--sans);
-  font-size: 12px;
+  font-size: 13px;
   background: var(--bg);
   color: var(--text-primary);
   cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.threshold-control select:focus {
+  border-color: var(--accent);
 }
 
 .btn-apply {
   background: var(--accent);
-  color: #fff;
+  color: #ffffff;
   border: none;
-  border-radius: 4px;
-  padding: 5px 14px;
-  font-size: 12px;
-  font-weight: 500;
+  border-radius: 6px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
   font-family: var(--sans);
-  transition: opacity 0.15s;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px var(--accent-glow);
 }
 
 .btn-apply:hover {
-  opacity: 0.85;
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--accent-glow);
+}
+
+.btn-apply:active {
+  transform: translateY(0);
 }
