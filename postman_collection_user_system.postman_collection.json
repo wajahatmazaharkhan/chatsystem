@@ -1,0 +1,132 @@
+{
+  "info": {
+    "name": "User System - Auth + Middleware + User-service",
+    "_postman_id": "user-system-collection",
+    "description": "Collection to test auth, middleware validate, and user-service endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "auth_base", "value": "http://localhost:3001" },
+    { "key": "middleware_base", "value": "http://localhost:5000" },
+    { "key": "user_base", "value": "http://localhost:3002" },
+    { "key": "token", "value": "" },
+    { "key": "created_user_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth - Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"admin@cohort.com\",\n  \"password\": \"admin123\"\n}"
+        },
+        "url": { "raw": "{{auth_base}}/auth/login", "host": ["{{auth_base}}"], "path": ["auth","login"] }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const body = pm.response.json();",
+              "const token = body.token || body.accessToken || (body.user && body.user.token) || '';",
+              "pm.test('login returned token', function() { pm.expect(token).to.be.a('string').and.not.empty; });",
+              "if (token) pm.collectionVariables.set('token', token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth - Logout",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "{{token}}" }
+        ],
+        "url": { "raw": "{{auth_base}}/auth/logout", "host": ["{{auth_base}}"], "path": ["auth","logout"] }
+      },
+      "response": []
+    },
+    {
+      "name": "Middleware - Validate",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "{{token}}" }
+        ],
+        "url": { "raw": "{{middleware_base}}/auth/validate", "host": ["{{middleware_base}}"], "path": ["auth","validate"] }
+      },
+      "response": []
+    },
+    {
+      "name": "User-service - Create User",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"test.user@example.com\",\n  \"password\": \"pass123\",\n  \"role\": \"STUDENT\"\n}"
+        },
+        "url": { "raw": "{{user_base}}/users", "host": ["{{user_base}}"], "path": ["users"] }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const body = pm.response.json();",
+              "const id = body.user_id || body.id || (body.user && (body.user.user_id || body.user.id)) || (body.data && body.data.id) || '';",
+              "pm.test('create returned user id', function() { pm.expect(id).to.be.a('string').and.not.empty; });",
+              "if (id) pm.collectionVariables.set('created_user_id', id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "User-service - Get User",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": { "raw": "{{user_base}}/users/{{created_user_id}}", "host": ["{{user_base}}"], "path": ["users","{{created_user_id}}"] }
+      },
+      "response": []
+    },
+    {
+      "name": "User-service - List Users",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{user_base}}/users", "host": ["{{user_base}}"], "path": ["users"] }
+      },
+      "response": []
+    },
+    {
+      "name": "User-service - Patch Status",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"is_active\": false\n}" },
+        "url": { "raw": "{{user_base}}/users/{{created_user_id}}", "host": ["{{user_base}}"], "path": ["users","{{created_user_id}}"] }
+      },
+      "response": []
+    }
+  ]
+}
