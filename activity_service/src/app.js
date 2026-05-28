@@ -1,9 +1,15 @@
 const express = require('express')
+const cors = require('cors')
+
 const app = express()
 const errorHandler = require('./middleware/error.middleware')
 
 const activityRoutes = require('./routes/activity.routes')
 
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true
+}))
 app.use(express.json())
 
 app.get('/health', (req, res) => {

@@ -21,10 +21,12 @@ const createActivityLog = async (data) => {
         activity_subtype: data.activity_subtype || null,
         group_id: data.group_id || null,
         metadata: data.metadata || {},
-        source_timestamp: data.source_timestamp 
+
+        source_timestamp: data.source_timestamp  // source_timestamp = actual event time from source module
             ? new Date(data.source_timestamp) 
             : new Date(),
-        timestamp: new Date()
+            
+        timestamp: new Date()  // timestamp = ingestion time when saved in Activity Service DB
     })
 
     return activity

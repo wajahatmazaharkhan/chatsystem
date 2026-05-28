@@ -17,6 +17,7 @@ const connectDB = async () => {
 
 mongoose.connection.on('disconnected', () => {
     logger.warn('MongoDB disconnected — attempting reconnect...');
+    connectDB(); // Attempt to reconnect
 });
 
 mongoose.connection.on('error', (err) => {
