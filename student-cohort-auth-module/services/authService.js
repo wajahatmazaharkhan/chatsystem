@@ -1,39 +1,34 @@
 // services/authService.js
 const jwt = require('jsonwebtoken');
-const axios = require('axios');
-const { findUserByEmail, validatePassword } = require('../models/userModel');
-let blacklistedTokens = [];
+const { findUserByEmail } = require('../models/userModel');
+const { addToBlacklist, isBlacklisted } = require('../utils/tokenBlacklist');
 
 class AuthService {
+    
+    // ✅ TASK 1 & 2: LOGIN + JWT TOKEN GENERATION
     async login(email, password) {
+        // Find user
+        const user = findUserByEmail(email);
+        if (!user) {
+            throw new Error('Invalid email or password');
+        }
+        
+        // Check password
+        if (user.password !== password) {
+            throw new Error('Invalid email or password');
+        }
+        
+        // Generate JWT Token
+        const token = jwt.sign(
+            {
+                user_id: user.user_id,
+                email: user.email,
+                role: user.role
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: process.env.JWT_EXPIRES_IN }
+        );
         try {
-            const user = await findUserByEmail(email);
-            if (!user) {
-                throw new Error('Invalid email or password');
-            }
-            if (user.is_active === false) {
-                throw new Error('Account is inactive');
-            }
-            if (user.deleted_at) {
-                throw new Error('Invalid email or password');
-            }
-            const isPasswordValid = await validatePassword(user, password);
-            if (!isPasswordValid) {
-                throw new Error('Invalid email or password');
-            }
-            const token = jwt.sign(
-                {
-                    user_id: user._id.toString(),
-                    email: user.email,
-                    role: user.role,
-                    is_active: user.is_active,
-                },
-                process.env.JWT_SECRET,
-                { expiresIn: process.env.JWT_EXPIRES_IN || '1h' }
-            );
-
-            // Log login activity to Module 5
-            try {
                 await axios.post(`${process.env.ACTIVITY_SERVICE_URL}/v1/activity/log`, {
                     user_id: user._id.toString(),
                     activity_type: 'LOGIN',
@@ -48,24 +43,17 @@ class AuthService {
                 console.error('❌ Error logging activity:', activityError.message);
             }
 
-            return {
-                success: true,
-                message: 'Login successful',
-                token,
-                user: {
-                    user_id: user._id.toString(),
-                    email: user.email,
-                    role: user.role,
-                    is_active: user.is_active,
-                },
-            };
-        } catch (err) {
-            console.error('❌ Login error:', err.message);
-            throw err;
-        }
+        return {
+            success: true,
+            message: 'Login successful',
+            token: token,
+            user: {
+                user_id: user.user_id,
+                email: user.email,
+                role: user.role
+            }
+        };
     }
-
-    
     
     // ✅ TASK 4: LOGOUT API
     async logout(token) {
