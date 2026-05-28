@@ -1,5 +1,6 @@
 // services/authService.js
 const jwt = require('jsonwebtoken');
+const axios = require('axios')
 const { findUserByEmail } = require('../models/userModel');
 const { addToBlacklist, isBlacklisted } = require('../utils/tokenBlacklist');
 
@@ -30,7 +31,7 @@ class AuthService {
         );
         try {
                 await axios.post(`${process.env.ACTIVITY_SERVICE_URL}/v1/activity/log`, {
-                    user_id: user._id.toString(),
+                    user_id: user._id, 
                     activity_type: 'LOGIN',
                     source_timestamp: new Date()
                 }, {
