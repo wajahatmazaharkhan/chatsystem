@@ -1,30 +1,4 @@
-const express = require("express");
-const axios = require("axios");
+const config = require("../config");
+const { createProxyRouter } = require("../utils/proxyService");
 
-const router = express.Router();
-
-router.use(async (req, res) => {
-
-    try {
-
-        const response = await axios({
-            method: req.method,
-            url: `${process.env.ANALYTICS_SERVICE}${req.originalUrl}`,
-            data: req.body,
-            headers: req.headers
-        });
-
-        res.status(response.status).json(response.data);
-
-    } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            message: "Analytics service unavailable"
-        });
-
-    }
-
-});
-
-module.exports = router;
+module.exports = createProxyRouter(config.analyticsService, "Analytics");
