@@ -1,18 +1,9 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import './AnalyticsDashboard.css';
 
 export default function AnalyticsDashboard() {
-  const [adminStats, setAdminStats] = useState({
-    total_students: 120,
-    total_groups: 18,
-    active_students: 95,
-    inactive_students: 25,
-    engagement_rate: 79,
-    total_messages: 430
-  });
-
+  const [adminStats, setAdminStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,7 +14,7 @@ export default function AnalyticsDashboard() {
           setAdminStats(res.data);
         }
       } catch (err) {
-        console.error('Failed to fetch analytics, using fallback data', err);
+        console.error('Failed to fetch analytics', err);
       } finally {
         setLoading(false);
       }
@@ -31,114 +22,134 @@ export default function AnalyticsDashboard() {
     fetchAnalytics();
   }, []);
 
-  const lineData = [
-    { name: 'Mon', uv: 25 },
-    { name: 'Tue', uv: 50 },
-    { name: 'Wed', uv: 90 },
-    { name: 'Thu', uv: 75 },
-    { name: 'Fri', uv: 60 },
-    { name: 'Sat', uv: 85 },
-    { name: 'Sun', uv: 100 },
+  const stats = [
+    { title: 'Total Students', value: adminStats?.total_students || 0, subtext: 'Not available' },
+    { title: 'Active This Week', value: adminStats?.active_students || 0, subtext: `${adminStats?.engagement_rate || 0}% of total`, subtextClass: 'success' },
+    { title: 'Inactive', value: adminStats?.inactive_students || 0, subtext: 'Not available', subtextClass: 'danger' },
+    { title: 'Total Groups', value: adminStats?.total_groups || 0, subtext: 'Not available' }
   ];
 
-  const pieData = [
-    { name: 'Active', value: adminStats.active_students || 95 },
-    { name: 'Inactive', value: adminStats.inactive_students || 25 },
-  ];
-  const COLORS = ['#9ca3af', '#ffffff'];
-
-  const tableData = [
-    { id: 1, group: 'Group A', active: 15, inactive: 3, messages: 120 },
-    { id: 2, group: 'Group B', active: 20, inactive: 5, messages: 85 },
-    { id: 3, group: 'Group C', active: 18, inactive: 2, messages: 150 },
-    { id: 4, group: 'Group D', active: 10, inactive: 8, messages: 45 },
-  ];
+  // The backend doesn't provide these currently, so they will be empty.
+  const batchEngagement = [];
+  const criticalAlerts = [];
+  const users = [];
 
   return (
-    <div className="analytics-dashboard">
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-value">{adminStats.total_students}</div>
-          <div className="stat-label">Total Students</div>
+    <div className="dashboard-container">
+      {/* Header */}
+      <header className="dashboard-header">
+        <div className="header-left">
+          <h1>System Administration <span className="separator">-</span> All Batches <span className="separator">-</span> All Groups</h1>
+          <p className="user-info">
+            <span className="user-name">Admin</span> <span className="pipe">|</span> <span className="user-access">Full system access</span>
+          </p>
         </div>
-        <div className="stat-card">
-          <div className="stat-value">{adminStats.total_groups}</div>
-          <div className="stat-label">Total Groups</div>
+        <div className="header-right">
+          <button className="admin-btn">ADMIN</button>
         </div>
-        <div className="stat-card">
-          <div className="stat-value">{adminStats.total_messages}</div>
-          <div className="stat-label">Total Messages</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">{adminStats.inactive_students}</div>
-          <div className="stat-label">Inactive Students</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">{adminStats.engagement_rate}%</div>
-          <div className="stat-label">Engagement Rate</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">{adminStats.active_students}</div>
-          <div className="stat-label">Active Students</div>
-        </div>
+      </header>
+
+      {/* Stats Row */}
+      <div className="stats-row">
+        {stats.map((stat, idx) => (
+          <div key={idx} className="stat-card">
+            <h3 className="stat-title">{stat.title}</h3>
+            <div className="stat-value">{loading ? '...' : stat.value}</div>
+            <div className={`stat-subtext ${stat.subtextClass || ''}`}>{stat.subtext}</div>
+          </div>
+        ))}
       </div>
 
-      <div className="charts-row">
-        <div className="chart-container">
-          <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={lineData}>
-              <XAxis dataKey="name" axisLine={{ stroke: '#999' }} tickLine={false} tick={{ fontSize: 12, fill: '#666' }} />
-              <YAxis axisLine={{ stroke: '#999' }} tickLine={false} tick={{ fontSize: 12, fill: '#666' }} />
-              <Line type="linear" dataKey="uv" stroke="#666" strokeWidth={1} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
+      {/* Middle Section: Engagement & Alerts */}
+      <div className="middle-section">
+        {/* Engagement Overview */}
+        <div className="engagement-card panel">
+          <h2 className="panel-title">Batch Engagement Overview</h2>
+          <div className="engagement-list">
+            {batchEngagement.length > 0 ? batchEngagement.map((batch, idx) => (
+              <div key={idx} className="engagement-item">
+                <span className="batch-name">{batch.name}</span>
+                <div className="progress-bar-container">
+                  <div 
+                    className="progress-bar" 
+                    style={{ width: `${batch.percentage}%`, backgroundColor: batch.color }}
+                  ></div>
+                </div>
+                <span className="batch-percentage">{batch.percentage}%</span>
+              </div>
+            )) : (
+              <div className="text-muted">Not available</div>
+            )}
+          </div>
         </div>
-        
-        <div className="chart-container" style={{ position: 'relative' }}>
-          <ResponsiveContainer width="100%" height={200}>
-            <PieChart>
-              <Pie
-                data={pieData}
-                innerRadius={50}
-                outerRadius={80}
-                paddingAngle={0}
-                dataKey="value"
-                stroke="none"
-              >
-                {pieData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
-          <div style={{ position: 'absolute', right: '40px', top: '50%', transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#9ca3af' }} />
-            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ffffff' }} />
+
+        {/* Critical Alerts */}
+        <div className="alerts-card panel">
+          <h2 className="panel-title">Critical Alerts</h2>
+          <div className="alerts-list">
+            {criticalAlerts.length > 0 ? criticalAlerts.map((alert, idx) => (
+              <div key={idx} className={`alert-item alert-${alert.type}`}>
+                <div className="alert-title">{alert.title}</div>
+                <div className="alert-desc">{alert.description}</div>
+              </div>
+            )) : (
+              <div className="text-muted">0 Alerts</div>
+            )}
           </div>
         </div>
       </div>
 
-      <div className="table-container">
-        <table className="groups-table">
-          <thead>
-            <tr>
-              <th>Group</th>
-              <th>Active</th>
-              <th>Inactive</th>
-              <th>Messages</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tableData.map((row) => (
-              <tr key={row.id}>
-                <td>{row.group}</td>
-                <td>{row.active}</td>
-                <td>{row.inactive}</td>
-                <td>{row.messages}</td>
+      {/* Users Table Section */}
+      <div className="users-section panel">
+        <div className="users-header">
+          <h2 className="panel-title">All Users</h2>
+          <div className="users-actions">
+            <button className="btn-secondary">+ Add User</button>
+            <button className="btn-secondary">Export CSV</button>
+          </div>
+        </div>
+        <div className="table-responsive">
+          <table className="users-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Batch</th>
+                <th>Last Login</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {users.length > 0 ? users.map((user, idx) => (
+                <tr key={idx}>
+                  <td className="fw-600">{user.name}</td>
+                  <td>
+                    <span className={`role-badge role-${user.role.toLowerCase()}`}>
+                      {user.role}
+                    </span>
+                  </td>
+                  <td className="text-muted">{user.batch}</td>
+                  <td className={user.lastLoginClass || 'text-muted'}>{user.lastLogin}</td>
+                  <td>
+                    <span className={`status-badge status-${user.status.toLowerCase()}`}>
+                      {user.status}
+                    </span>
+                  </td>
+                  <td className="table-actions">
+                    <button className="action-link">Edit</button>
+                    <span className="pipe">|</span>
+                    <button className="action-link">Suspend</button>
+                  </td>
+                </tr>
+              )) : (
+                <tr>
+                  <td colSpan="6" className="text-muted" style={{ textAlign: 'center' }}>Not available</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
