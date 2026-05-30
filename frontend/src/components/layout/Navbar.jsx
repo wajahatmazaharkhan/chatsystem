@@ -6,7 +6,7 @@ import {
 
 export default function Navbar() {
     return (
-        <div className="h-20 bg-white border-b px-10 flex justify-between items-center">
+        <div className="h-20 bg-slate-800 border-b px-10 flex justify-between items-center">
             <div className="relative">
                 <Search
                     size={18}

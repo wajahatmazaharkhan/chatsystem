@@ -11,7 +11,7 @@ export default function DashboardLayout({
             <div className="ml-64">
                 <Navbar />
 
-                <div className="p-8 bg-[#f5f7fb] min-h-screen">
+                <div className="p-8 bg-slate-800 min-h-screen">
                     {children}
                 </div>
             </div>

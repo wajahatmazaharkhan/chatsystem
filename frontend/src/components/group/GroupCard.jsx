@@ -4,7 +4,7 @@ export default function GroupCard({ group }) {
     const navigate = useNavigate();
 
     return (
-        <div className="bg-white rounded-xl p-6 shadow-sm">
+        <div className="bg-slate-700 rounded-xl p-6 shadow-sm">
             <h2 className="font-bold text-xl">
                 {group.name}
             </h2>

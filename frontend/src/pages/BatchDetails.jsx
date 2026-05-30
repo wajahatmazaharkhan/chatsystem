@@ -41,7 +41,7 @@ export default function BatchDetails() {
             </h1>
 
             <div className="grid grid-cols-3 gap-6 my-8">
-                <div className="bg-white p-6 rounded-xl">
+                <div className="bg-slate-700 p-6 rounded-xl">
                     <p>Students</p>
 
                     <h2 className="text-3xl font-bold">
@@ -51,7 +51,7 @@ export default function BatchDetails() {
                     </h2>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl">
+                <div className="bg-slate-700 p-6 rounded-xl">
                     <p>Groups</p>
 
                     <h2 className="text-3xl font-bold">
@@ -59,7 +59,7 @@ export default function BatchDetails() {
                     </h2>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl">
+                <div className="bg-slate-700 p-6 rounded-xl">
                     <p>Created</p>
 
                     <p>

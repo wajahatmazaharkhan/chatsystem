@@ -39,7 +39,7 @@ export default function GroupDetails() {
       </h1>
 
       <div className="grid grid-cols-3 gap-6 my-8">
-        <div className="bg-white p-6 rounded-xl">
+        <div className="bg-slate-700 p-6 rounded-xl">
           Members
 
           <h2 className="text-3xl font-bold">
@@ -47,7 +47,7 @@ export default function GroupDetails() {
           </h2>
         </div>
 
-        <div className="bg-white p-6 rounded-xl">
+        <div className="bg-slate-700 p-6 rounded-xl">
           Manager
 
           <p>
@@ -56,7 +56,7 @@ export default function GroupDetails() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl p-6">
+      <div className="bg-slate-700 rounded-xl p-6">
         <h2 className="font-bold mb-4">
           Students
         </h2>

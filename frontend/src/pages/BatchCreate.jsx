@@ -92,7 +92,7 @@ export default function BatchCreate() {
       </div>
 
       {/* Groups */}
-      <div className="mt-8 bg-white p-6 rounded">
+      <div className="mt-8 bg-slate-800 p-6 rounded">
         <h2>Expected Groups</h2>
 
         {groups.map((group) => (

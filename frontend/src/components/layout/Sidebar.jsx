@@ -35,7 +35,7 @@ const navItems = [
 
 export default function Sidebar() {
     return (
-        <div className="w-64 h-screen bg-white border-r fixed left-0 top-0">
+        <div className="w-64 h-screen bg-slate-800 border-r fixed left-0 top-0">
             <div className="p-8">
                 <h1 className="font-bold text-3xl">
                     EduManager
@@ -55,7 +55,7 @@ export default function Sidebar() {
                             `flex items-center gap-3 px-8 py-4 ${
                                 isActive
                                     ? "bg-blue-50 border-r-4 border-blue-700 text-blue-700"
-                                    : "hover:bg-gray-100"
+                                    : "hover:bg-gray-100 hover:text-blue-700"
                             }`
                         }
                     >

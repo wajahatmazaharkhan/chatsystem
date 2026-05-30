@@ -4,9 +4,9 @@ export default function BatchTable({ batches }) {
     const navigate = useNavigate();
 
     return (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-slate-800 rounded-xl shadow-sm overflow-hidden">
             <table className="w-full">
-                <thead className="bg-gray-100">
+                <thead className="bg-slate-700">
                     <tr>
                         <th className="p-4 text-left">
                             Name

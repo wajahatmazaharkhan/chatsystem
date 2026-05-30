@@ -20,7 +20,7 @@ export default function AssignManagerModal({ groupId,closeModal }) {
 
   return (
     <div className="fixed inset-0 bg-black/40 flex justify-center items-center">
-      <div className="bg-white w-100 rounded-xl p-6">
+      <div className="bg-slate-800 w-100 rounded-xl p-6">
         <h2 className="text-2xl font-bold mb-4">
           Assign Manager
         </h2>
