@@ -19,7 +19,7 @@ const MessageSchema = new mongoose.Schema(
     },
     sent_at: {
       type: Date,
-      default: Date.now,
+      default: Date.now, // native Date, not string
     },
     deleted_at: {
       type: Date,
@@ -27,18 +27,19 @@ const MessageSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: false,
+    timestamps: false, // sent_at is the canonical timestamp
   }
 );
 
-// index
+// Chat history and analytics queries
 MessageSchema.index({ group_id: 1, sent_at: -1 });
 
-// ✅ FIXED middleware
-MessageSchema.pre(/^find/, function () {
+// Soft-delete middleware
+MessageSchema.pre(/^find/, function (next) {
   if (!this.getOptions().includeDeleted) {
     this.where({ deleted_at: null });
   }
+  next();
 });
 
 module.exports = mongoose.model('Message', MessageSchema);

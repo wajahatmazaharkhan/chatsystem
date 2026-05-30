@@ -13,17 +13,11 @@ const GroupSchema = new mongoose.Schema(
       required: true,
     },
     manager_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      default: null,
+      type: String,
+      default: null, // null = unassigned
     },
     members: {
-      type: [
-        {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'User',
-        },
-      ],
+      type: [String],
       validate: {
         validator: (arr) => arr.length <= 7,
         message: 'A group cannot have more than 7 members',
@@ -50,19 +44,24 @@ const GroupSchema = new mongoose.Schema(
   }
 );
 
+// Unique group names within a batch (excluding deleted)
 GroupSchema.index(
   { batch_id: 1, name: 1 },
   { unique: true, partialFilterExpression: { deleted_at: null } }
 );
 
+// For unassigned groups queries
 GroupSchema.index({ manager_id: 1 }, { sparse: true });
+
+// For user → group lookup
 GroupSchema.index({ members: 1 });
 
-// ✅ FIXED middleware
-GroupSchema.pre(/^find/, function () {
+// Soft-delete middleware
+GroupSchema.pre(/^find/, function (next) {
   if (!this.getOptions().includeDeleted) {
     this.where({ deleted_at: null });
   }
+  next();
 });
 
 module.exports = mongoose.model('Group', GroupSchema);
