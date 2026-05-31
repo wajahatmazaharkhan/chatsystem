@@ -1,0 +1,214 @@
+
+
+# Module 6 — Active/Inactive Classification Engine
+
+## Overview
+
+Module 6 is responsible for classifying students as:
+
+* `ACTIVE`
+* `INACTIVE`
+
+based on their latest activity timestamps received from Module 5 (Activity Tracking Service).
+
+This module acts as the centralized engagement classification engine for the cohort monitoring system.
+
+
+
+# Core Classification Logic
+
+A student is classified using the latest activity timestamp.
+
+Current threshold:
+
+
+96 hours (4 days)
+
+
+Logic:
+
+If current_time - last_activity_time > threshold
+→ INACTIVE
+
+Else
+→ ACTIVE
+
+# Dependencies
+
+This module depends on:
+
+| Module   | Purpose                               |
+| -------- | ------------------------------------- |
+| Module 5 | Provides activity logs and timestamps |
+| Module 3 | Provides group-member mapping         |
+
+
+
+# APIs
+
+# 1. Get Student Status
+
+## Endpoint
+
+
+GET /status/user/:id
+
+
+
+## Purpose
+
+Returns ACTIVE/INACTIVE status of a single student.
+
+
+## Request Example
+
+
+GET /status/user/6820ab123
+
+
+---
+
+## Response Example
+
+
+{
+  "user_id": "6820ab123",
+  "group_id": "7820cd456",
+  "status": "ACTIVE",
+  "last_active_at": "2026-05-09T08:10:00Z",
+  "evaluated_at": "2026-05-09T09:00:00Z",
+  "threshold_hours": 96,
+  "status_changed_at": "2026-05-08T07:00:00Z",
+  "transition_count": 2
+}
+
+
+---
+
+## Error Responses
+
+### Student Not Found
+
+
+{
+  "error": "Student not found"
+}
+
+
+---
+
+# 2. Get Group Status Summary
+
+## Endpoint
+
+
+GET /status/group/:id
+
+
+---
+
+## Purpose
+
+Returns aggregated ACTIVE/INACTIVE summary for a group.
+
+---
+
+## Request Example
+
+
+GET /status/group/7820cd456
+
+
+---
+
+## Response Example
+
+
+{
+  "group_id": "7820cd456",
+  "total_students": 7,
+  "active_students": 5,
+  "inactive_students": 2,
+  "students": [
+    {
+      "user_id": "u1",
+      "status": "ACTIVE"
+    },
+    {
+      "user_id": "u2",
+      "status": "INACTIVE"
+    }
+  ]
+}
+
+
+---
+
+## Error Responses
+
+### Group Not Found
+
+
+{
+  "error": "Group not found"
+}
+
+
+---
+
+# Internal Processing Flow
+
+## Student Status Flow
+
+1. Receive student_id
+2. Fetch latest activity from ActivityLog
+3. Compare timestamp with threshold
+4. Classify ACTIVE/INACTIVE
+5. Store/update UserStatus
+6. Return response
+
+
+---
+
+## Group Status Flow
+
+
+1. Fetch group from Group module
+2. Get all group members
+3. Evaluate each student
+4. Count ACTIVE/INACTIVE students
+5. Return aggregated summary
+
+
+---
+
+# Database Collections Used(schema)
+
+| Collection  | Purpose                                 |
+| ----------- | --------------------------------------- |
+| ActivityLog | Stores student activity events          |
+| UserStatus  | Stores evaluated classification results |
+| Group       | Stores group-member mappings            |
+
+---
+
+# Assumptions
+
+* Module 5 is the single source of truth for activity data
+* Group membership comes from Module 3
+* Time format follows UTC ISO standard
+* Authentication will be handled centrally by API Gateway (Module 8)
+
+---
+
+# Current Scope
+
+Implemented:
+
+* Classification logic
+* Student status API
+* Group aggregation API
+* UserStatus persistence
+* Transition tracking
+
+
