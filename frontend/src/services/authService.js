@@ -1,14 +1,37 @@
-// authService.js
-// Fetch user info (role) from backend
-import axios from 'axios';
+export const handleLogin = async (email, password) => {
+  const response = await fetch("http://localhost:3001/auth/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email,
+      password,
+    }),
+  });
 
-export async function fetchUserInfo() {
-  try {
-    // This endpoint should return user info from the backend (Module 1 - Auth Service)
-    const res = await axios.get('/v1/auth/validate');
-    return res.data;
-  } catch (err) {
-    console.error("Auth validation failed:", err);
-    throw err;
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Login failed");
   }
-}
+
+  return data;
+};
+
+export const handleLogout = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      await fetch("http://localhost:3001/auth/logout", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    }
+  } finally {
+    localStorage.removeItem("token");
+  }
+};
