@@ -1,0 +1,26 @@
+.notif {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--surface);
+  color: var(--text-primary);
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--border), 0 0 16px var(--accent-glow);
+  border-left: 3px solid var(--accent);
+  z-index: 999;
+  animation: fadeup 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeup {
+  from {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
