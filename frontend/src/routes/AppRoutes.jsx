@@ -4,6 +4,8 @@ import {
     Route,
 } from "react-router-dom";
 
+import Login from '../pages/auth/Login'
+
 import DashboardLayout from "../components/layout/DashboardLayout";
 
 import BatchCreate from "../pages/BatchCreate";
@@ -17,6 +19,7 @@ import GroupDetails from "../pages/GroupDetails";
 export default function AppRoutes() {
     return (
         <BrowserRouter>
+          <Route path="/login" element={<Login />} />
             <DashboardLayout>
                 <Routes>
                     <Route
