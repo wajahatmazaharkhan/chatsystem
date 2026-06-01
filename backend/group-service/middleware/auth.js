@@ -20,9 +20,8 @@ const authenticate = async (req, res, next) => {
   }
 
   try {
-    const response = await axios.post(
+    const response = await axios.get(
       `${process.env.AUTH_SERVICE_URL}/auth/validate`,
-      {},
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
