@@ -21,12 +21,8 @@
   "homepage": "https://github.com/wajahatmazaharkhan/chatsystem#readme",
   "dependencies": {
     "axios": "^1.16.1",
-<<<<<<<< HEAD:backend/status-service/package.json
-    "dotenv": "^17.4.2",
-========
     "cors": "^2.8.6",
-    "dotenv": "^16.4.5",
->>>>>>>> module7-analytics:backend/analytics-service/package.json
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "mongoose": "^9.6.1"
   },

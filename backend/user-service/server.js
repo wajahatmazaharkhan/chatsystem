@@ -25,8 +25,8 @@ const userRoutes = require('./services/user/routes/users.routes');
 app.use('/users', userRoutes);
  console.log("➡️ HIT /users base route");
 //Mount auth routes
-const authRoutes = require('./student-cohort-auth-module/routes/authRoutes');
-app.use('/auth', authRoutes);
+// const authRoutes = require('./student-cohort-auth-module/routes/authRoutes');
+// app.use('/auth', authRoutes);
 
 // Health
 app.get('/', (req, res) => res.json({ service: 'user-service', status: 'ok' }));
