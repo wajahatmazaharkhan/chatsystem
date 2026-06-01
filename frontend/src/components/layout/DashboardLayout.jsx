@@ -1,9 +1,8 @@
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
+import { Outlet } from "react-router-dom";
 
-export default function DashboardLayout({
-    children,
-}) {
+export default function DashboardLayout() {
     return (
         <div>
             <Sidebar />
@@ -12,7 +11,7 @@ export default function DashboardLayout({
                 <Navbar />
 
                 <div className="p-8 bg-slate-800 min-h-screen">
-                    {children}
+                    <Outlet />
                 </div>
             </div>
         </div>

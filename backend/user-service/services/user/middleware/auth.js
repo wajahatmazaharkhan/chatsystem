@@ -296,9 +296,7 @@ module.exports = async function authMiddleware(req, res, next) {
         const response = await getJson(validateUrl, {
           Authorization: `Bearer ${token}`,
           Accept: 'application/json'
-        });console.log("AUTH VALIDATE URL:", validateUrl);
-console.log("TOKEN SENT:", token);
-console.log("AUTH RESPONSE:", response);
+        });
 
         req.user = {
           user_id:
@@ -313,8 +311,6 @@ console.log("AUTH RESPONSE:", response);
           is_active:
             response.is_active !== false
         };
-
-        console.log('Authenticated User:', req.user);
 
         return next();
 

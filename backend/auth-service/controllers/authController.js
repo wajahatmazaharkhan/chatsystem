@@ -65,7 +65,7 @@ class AuthController {
                 });
             }
             
-            const result = authService.validateToken(token);
+            const result = await authService.validateToken(token);
             
             if (!result.valid) {
                 return res.status(401).json(result);

@@ -2,6 +2,7 @@ import {
   BrowserRouter,
   Routes,
   Route,
+  Navigate
 } from "react-router-dom";
 
 import DashboardLayout from "../components/layout/DashboardLayout";
@@ -14,6 +15,7 @@ import BatchDetails from "../pages/BatchDetails";
 
 import GroupList from "../pages/GroupList";
 import GroupDetails from "../pages/GroupDetails";
+import Users from "../pages/Users/Users";
 
 export default function AppRoutes() {
   return (
@@ -26,6 +28,11 @@ export default function AppRoutes() {
           element={<Login />}
         />
 
+        <Route
+          path="/users"
+          element={<Users />}
+        />
+
         {/* Dashboard Routes */}
         <Route
           path="/"
@@ -33,6 +40,10 @@ export default function AppRoutes() {
             <DashboardLayout />
           }
         >
+          <Route
+            index
+            element={<Navigate to="/batches" />}
+          />
           <Route
             path="batches/create"
             element={<BatchCreate />}

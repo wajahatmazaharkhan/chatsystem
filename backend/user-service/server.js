@@ -17,16 +17,11 @@ app.use(cors({
 // Default validate URL if not provided
 process.env.AUTH_VALIDATE_URL = process.env.AUTH_VALIDATE_URL || 'http://localhost:3001/auth/validate';
 
-console.log("SERVER STARTING...");
-console.log("Mounting /users route...");
 
 // Mount user routes
 const userRoutes = require('./services/user/routes/users.routes');
 app.use('/users', userRoutes);
  console.log("➡️ HIT /users base route");
-//Mount auth routes
-// const authRoutes = require('./student-cohort-auth-module/routes/authRoutes');
-// app.use('/auth', authRoutes);
 
 // Health
 app.get('/', (req, res) => res.json({ service: 'user-service', status: 'ok' }));
@@ -38,12 +33,12 @@ async function start() {
   const mongoUri = process.env.MONGO_URI;
   if (mongoUri) {
     await mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true });
-    console.log('Connected to MongoDB:', mongoUri);
+    console.log('Connected to MongoDB');
   } else {
     // Attempt to start an in-memory MongoDB for local/manual testing when no MONGO_URI is provided.
     try {
       const { MongoMemoryServer } = require('mongodb-memory-server');
-      console.log('No MONGO_URI provided — starting in-memory MongoDB for testing...');
+    
       const mongod = await MongoMemoryServer.create();
       const uri = mongod.getUri();
       await mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
