@@ -11,9 +11,9 @@ const authProxy = createServiceProxy(config.modules.auth, '/auth');
 const usersProxy = createServiceProxy(config.modules.users, '/users');
 const batchesProxy = createServiceProxy(config.modules.groups, '/v1/batches');
 const groupsProxy = createServiceProxy(config.modules.groups, '/v1/groups');
-const chatProxy = createServiceProxy(config.modules.chat, '/chat');
+const chatProxy = createServiceProxy(config.modules.chat, '/v1/chat');
 const activityProxy = createServiceProxy(config.modules.activity, '/v1/activity');
-const statusProxy = createServiceProxy(config.modules.status, '/status');
+const statusProxy = createServiceProxy(config.modules.status, '/v1/status');
 const analyticsProxy = createServiceProxy(config.modules.analytics, '/analytics');
 
 // ==========================================

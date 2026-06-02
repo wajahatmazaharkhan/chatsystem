@@ -15,7 +15,7 @@ app.get('/', (req, res) => {
   res.send('Module 7 Analytics Backend Running');
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5007;
 
 app.listen(PORT, () => {
   console.log(`Analytics Service running on port ${PORT}`);

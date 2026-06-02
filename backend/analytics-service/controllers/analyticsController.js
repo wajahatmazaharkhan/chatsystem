@@ -11,10 +11,10 @@ exports.getAdminAnalytics =
   async (req, res) => {
 
     try {
-
+      const token = req.headers.authorization;
       const result =
         await analyticsService
-          .getAdminAnalytics();
+          .getAdminAnalytics(token);
 
       res.status(200).json(result);
 
@@ -36,11 +36,12 @@ exports.getGroupAnalytics =
   async (req, res) => {
 
     try {
-
+      const token = req.headers.authorization;
       const result =
         await analyticsService
           .getGroupAnalytics(
-            req.params.id
+            req.params.id,
+            token
           );
 
       res.status(200).json(result);
