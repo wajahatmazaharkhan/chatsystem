@@ -1,70 +1,133 @@
 import {
-    LayoutDashboard,
-    Users,
-    Layers,
-    User,
+  LayoutDashboard,
+  Users,
+  Layers,
+  Activity,
+  MessageSquare,
+  BookOpen,
+  LogOut,
 } from "lucide-react";
 
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { handleLogout } from "../../services/authService";
 
 const navItems = [
-    {
-        name: "Dashboard",
-        path: "/",
-        icon: <LayoutDashboard size={18} />,
-    },
-
-    {
-        name: "Batches",
-        path: "/batches",
-        icon: <Users size={18} />,
-    },
-
-    {
-        name: "Groups",
-        path: "/groups",
-        icon: <Layers size={18} />,
-    },
-
-    {
-        name: "Profile",
-        path: "/profile",
-        icon: <User size={18} />,
-    },
+  {
+    name: "Analytics",
+    path: "/analytics",
+    icon: <LayoutDashboard size={20} />,
+  },
+  {
+    name: "Users",
+    path: "/users",
+    icon: <Users size={20} />,
+  },
+  {
+    name: "Batches",
+    path: "/batches",
+    icon: <BookOpen size={20} />,
+  },
+  {
+    name: "Groups",
+    path: "/groups",
+    icon: <Layers size={20} />,
+  },
+  {
+    name: "Activity",
+    path: "/activity",
+    icon: <Activity size={20} />,
+  },
+  {
+    name: "Chat",
+    path: "/chat",
+    icon: <MessageSquare size={20} />,
+  },
 ];
 
 export default function Sidebar() {
-    return (
-        <div className="w-64 h-screen bg-slate-800 border-r fixed left-0 top-0">
-            <div className="p-8">
-                <h1 className="font-bold text-3xl">
-                    EduManager
-                </h1>
+  const navigate = useNavigate();
 
-                <p className="text-gray-500">
-                    Admin Console
-                </p>
-            </div>
+  const logoutUser = async () => {
+    try {
+      await handleLogout();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
 
-            <div className="mt-6">
-                {navItems.map((item) => (
-                    <NavLink
-                        key={item.name}
-                        to={item.path}
-                        className={({ isActive }) =>
-                            `flex items-center gap-3 px-8 py-4 ${
-                                isActive
-                                    ? "bg-blue-50 border-r-4 border-blue-700 text-blue-700"
-                                    : "hover:bg-gray-100 hover:text-blue-700"
-                            }`
-                        }
-                    >
-                        {item.icon}
+      navigate("/login");
+    }
+  };
+  const user = JSON.parse(
+  localStorage.getItem("user")
+);
 
-                        {item.name}
-                    </NavLink>
-                ))}
-            </div>
+  return (
+    <aside className="fixed left-0 top-0 w-72 h-screen bg-slate-900 border-r border-slate-800 flex flex-col">
+      {/* Logo */}
+      <div className="p-4 border-b border-slate-800">
+        <h1 className="text-3xl font-bold text-white">
+          EduManager
+        </h1>
+
+        <p className="text-slate-400 mt-1">
+          Admin Control Center
+        </p>
+      </div>
+
+      {/* Navigation */}
+      <div className="flex-1 px-4 py-6">
+        <div className="space-y-2">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.name}
+              to={item.path}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+                  isActive
+                    ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                }`
+              }
+            >
+              {item.icon}
+              <span className="font-medium">
+                {item.name}
+              </span>
+            </NavLink>
+          ))}
         </div>
-    );
+      </div>
+
+      {/* User Info */}
+      <div className="p-4 border-t border-slate-800">
+        <div className="flex items-center gap-3">
+          <img
+            src="https://i.pravatar.cc/50"
+            alt="Admin"
+            className="w-12 h-12 rounded-full"
+          />
+
+          <div>
+            <h3 className="text-white font-medium">
+            {user?.name || "Admin"}
+            </h3>
+
+            <p className="text-slate-400 text-sm">
+              System Administrator
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={logoutUser}
+          className="w-full mt-4 flex items-center justify-center gap-2 bg-red-500/10 text-red-400 py-2 rounded-lg hover:bg-red-500/20 transition"
+        >
+          <LogOut size={18} />
+          Logout
+        </button>
+      </div>
+    </aside>
+  );
 }

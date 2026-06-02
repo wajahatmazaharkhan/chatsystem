@@ -15,11 +15,14 @@ const authMiddleware = async (req, res, next) => {
 
   try {
     // Validate token by calling Module 1 (/auth/validate)
-    const response = await axios.post(`${config.modules.auth}/auth/validate`, {}, {
-      headers: {
-        Authorization: `Bearer ${token}`
+    const response = await axios.get(
+      `${config.modules.auth}/auth/validate`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       }
-    });
+    );
 
     // Extract user_id and role from Module 1's response
     const { user_id, role } = response.data;

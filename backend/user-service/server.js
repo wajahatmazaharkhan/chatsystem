@@ -17,7 +17,6 @@ app.use(cors({
 // Default validate URL if not provided
 process.env.AUTH_VALIDATE_URL = process.env.AUTH_VALIDATE_URL || 'http://localhost:3001/auth/validate';
 
-
 // Mount user routes
 const userRoutes = require('./services/user/routes/users.routes');
 app.use('/users', userRoutes);

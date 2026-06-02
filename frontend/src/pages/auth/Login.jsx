@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Mail, Lock, Eye, EyeOff, LogOut, CheckCircle, XCircle } from "lucide-react";
 import { useEffect } from "react";
 import { handleLogin, handleLogout } from "../../services/authService";
+import { useNavigate } from "react-router-dom";
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -12,6 +13,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
 const loginUser = async () => {
   try {
@@ -22,11 +24,24 @@ const loginUser = async () => {
 
     localStorage.setItem("token", data.token);
 
-    localStorage.setItem("user", JSON.stringify(data.user));
+   setUserData(data.user);
 
-    setUserData(data.user);
-    setIsLoggedIn(true);
-    setLoginStatus("success");
+    localStorage.setItem(
+      "user",
+      JSON.stringify(data.user)
+    );
+
+    const role = data.user.role;
+
+    if (role === "ADMIN") {
+      navigate("/analytics");
+    } else if (role === "MANAGER") {
+      navigate("/groups");
+    } else if (role === "STUDENT") {
+      navigate("/chat");
+    } else {
+      navigate("/");
+    }
   } catch (err) {
     setError(err.message);
     setIsLoggedIn(false);
@@ -48,7 +63,11 @@ useEffect(() => {
   const savedUser = localStorage.getItem("user");
 
   if (savedUser) {
-    setUserData(JSON.parse(savedUser));
+    const user = JSON.parse(savedUser);
+
+    if (user.role === "ADMIN") {
+      navigate("/analytics");
+    }
   }
 }, []);
 
@@ -62,9 +81,6 @@ useEffect(() => {
       {/* Card */}
       <div className="relative w-full max-w-md rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl p-6 text-white my-8">
         
-        {/* LOGIN FORM - Show when not logged in */}
-        {!isLoggedIn ? (
-          <>
             {/* Title */}
             <h1 className="text-4xl font-bold text-center">Sign In</h1>
             <p className="text-center text-gray-300 text-lg mt-3 mb-7">
@@ -140,59 +156,7 @@ useEffect(() => {
                 Admin • Manager • Student
               </span>
             </p>
-          </>
-        ) : (
-          /* LANDING PAGE - Show when logged in */
-          <>
-            <div className="flex justify-between items-center mb-8">
-              <h1 className="text-4xl font-bold">Dashboard</h1>
-              <button
-                onClick={handleLogout}
-                className="p-2 hover:bg-red-500/20 rounded-lg transition"
-                title="Logout"
-              >
-                <LogOut className="text-red-400" size={28} />
-              </button>
-            </div>
-
-            {/* Success Message */}
-            <div className="mb-8 p-6 bg-green-500/20 border border-green-500/50 rounded-2xl flex flex-col items-center gap-4">
-              <CheckCircle className="text-green-400" size={48} />
-              <div className="text-center">
-                <h2 className="text-2xl font-bold text-green-300 mb-2">Login Successful!</h2>
-                <p className="text-green-200">You have been authenticated successfully.</p>
-              </div>
-            </div>
-
-            {/* User Information */}
-            <div className="space-y-4 bg-white/5 border border-white/10 rounded-2xl p-6">
-              <div>
-                <p className="text-gray-400 text-sm">User ID</p>
-                <p className="text-xl font-semibold text-white break-all">{userData?.user_id}</p>
-              </div>
-              <div>
-                <p className="text-gray-400 text-sm">Email</p>
-                <p className="text-xl font-semibold text-white break-all">{userData?.email}</p>
-              </div>
-              <div>
-                <p className="text-gray-400 text-sm">Role</p>
-                <p className="text-xl font-semibold">
-                  <span className="px-3 py-1 rounded-full bg-indigo-500/30 border border-indigo-500/50">
-                    {userData?.role}
-                  </span>
-                </p>
-              </div>
-            </div>
-
-            {/* Logout Button */}
-            <button
-              onClick={logoutUser}
-              className="w-full mt-8 py-4 rounded-2xl text-xl font-bold bg-gradient-to-r from-red-500 to-red-600 hover:scale-[1.02] transition-all duration-300 shadow-lg shadow-red-500/20"
-            >
-              Logout
-            </button>
-          </>
-        )}
+        
       </div>
     </div>
   );

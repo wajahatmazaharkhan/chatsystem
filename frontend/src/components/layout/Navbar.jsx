@@ -1,44 +1,43 @@
 import {
-    Bell,
-    Settings,
-    Search,
+  Settings,
 } from "lucide-react";
 
 export default function Navbar() {
-    return (
-        <div className="h-20 bg-slate-800 border-b px-10 flex justify-between items-center">
-            <div className="relative">
-                <Search
-                    size={18}
-                    className="absolute left-4 top-4"
-                />
+  return (
+    <header className="h-14 bg-slate-900 border-b border-slate-800 px-8 flex justify-between items-center">
+      
+      {/* Left */}
+      <div>
+        <h1 className="text-2xl font-bold text-white">
+          Admin Dashboard
+        </h1>
+      </div>
 
-                <input
-                    placeholder="Search..."
-                    className="w-96 h-12 pl-12 rounded-lg border outline-none"
-                />
-            </div>
+      {/* Right */}
+      <div className="flex items-center gap-4">
 
-            <div className="flex items-center gap-6">
-                <Bell />
+        <button className="w-8 h-8 flex items-center justify-center rounded-xl bg-slate-800 hover:bg-slate-700 transition">
+          <Settings size={14} className="text-slate-300" />
+        </button>
 
-                <Settings />
+        <div className="flex items-center gap-3 bg-slate-800 px-4 py-1 rounded-xl">
+          <img
+            src="https://i.pravatar.cc/50"
+            alt="Admin"
+            className="w-8 h-8 rounded-full"
+          />
 
-                <div className="flex items-center gap-3">
-                    <img
-                        src="https://i.pravatar.cc/50"
-                        className="rounded-full w-10 h-10"
-                    />
+          <div>
+            <h3 className="text-white text-sm font-medium">
+              Admin
+            </h3>
 
-                    <div>
-                        <h3>Admin</h3>
-
-                        <p className="text-sm text-gray-400">
-                            Super Admin
-                        </p>
-                    </div>
-                </div>
-            </div>
+            <p className="text-slate-400 text-xs">
+              Super Admin
+            </p>
+          </div>
         </div>
-    );
+      </div>
+    </header>
+  );
 }

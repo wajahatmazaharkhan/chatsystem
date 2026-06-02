@@ -1,21 +1,21 @@
-import axios from 'axios';
+import api from './api';
 
 export async function fetchAdminStats() {
-  const res = await axios.get('/v1/analytics/admin');
+  const res = await api.get('/v1/analytics/admin');
   return res.data;
 }
 
 export async function fetchUsers() {
-  const res = await axios.get('/v1/users');
+  const res = await api.get('/v1/users');
   return res.data;
 }
 
 export async function fetchManagerStats() {
-  const res = await axios.get('/v1/analytics/group');
+  const res = await api.get('/v1/analytics/group');
   return res.data;
 }
 
 export async function fetchStudentStats() {
-  const res = await axios.get('/v1/analytics/student');
+  const res = await api.get('/v1/analytics/student');
   return res.data;
 }

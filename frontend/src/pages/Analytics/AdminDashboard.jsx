@@ -17,27 +17,36 @@ export default function AdminDashboard({ user }) {
           managers: statsData.managers_count || 0,
           admins: statsData.admins_count || 0
         });
-        setUsers(usersData || []);
+        setUsers(usersData.items || []);
       })
       .catch(err => console.error("Failed to load admin data", err))
       .finally(() => setLoading(false));
   }, []);
 
   return (
-    <div className="p-6 bg-[#1a1a1c] min-h-screen text-gray-200">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-white mb-2">Admin Dashboard</h1>
-          <p className="text-gray-400 text-sm">Welcome back, {user?.name || 'Administrator'}</p>
-        </div>
-      </div>
+    <div className="text-white">
+  <div className="flex justify-between items-center mb-8">
+    <div>
+      <h1 className="text-3xl font-bold text-white">
+        Analytics
+      </h1>
 
-      <div className="space-y-6">
-        <StatCards stats={stats} />
-        <div className="w-full space-y-6">
-          <UserManagementTable users={users} loading={loading} />
-        </div>
-      </div>
+      <p className="text-slate-400 mt-1">
+        Welcome back, {user?.name || "Administrator"} 👋
+      </p>
     </div>
+  </div>
+
+  <div className="space-y-6">
+    <StatCards stats={stats} />
+
+    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+      <UserManagementTable
+        users={users}
+        loading={loading}
+      />
+    </div>
+  </div>
+</div>
   );
 }

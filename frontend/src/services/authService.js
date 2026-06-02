@@ -1,22 +1,16 @@
+import api from "./api";
+
 export const handleLogin = async (email, password) => {
-  const response = await fetch("http://localhost:3001/auth/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
+  try {
+    const response = await api.post("/auth/login", {
       email,
       password,
-    }),
-  });
+    });
 
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.message || "Login failed");
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Login failed", { cause: error });
   }
-
-  return data;
 };
 
 export const handleLogout = async () => {
@@ -24,13 +18,10 @@ export const handleLogout = async () => {
     const token = localStorage.getItem("token");
 
     if (token) {
-      await fetch("http://localhost:3001/auth/logout", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await api.post("/auth/logout");
     }
+  } catch (error) {
+    console.error(error);
   } finally {
     localStorage.removeItem("token");
   }
