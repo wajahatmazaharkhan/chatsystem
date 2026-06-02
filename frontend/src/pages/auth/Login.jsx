@@ -34,11 +34,11 @@ const loginUser = async () => {
     const role = data.user.role;
 
     if (role === "ADMIN") {
-      navigate("/analytics");
+      navigate("/dashboard/analytics");
     } else if (role === "MANAGER") {
-      navigate("/groups");
+      navigate("/dashboard/groups");
     } else if (role === "STUDENT") {
-      navigate("/chat");
+      navigate("/dashboard/chat");
     } else {
       navigate("/");
     }
