@@ -2,7 +2,8 @@ const router = require("express").Router();
 
 const controller =
   require("../controllers/statusController");
-const authMiddleware = require("../middlewares/authMiddleware");
+const {authMiddleware} = require("../middlewares/authMiddleware");
+const {requireRole} = require("../middlewares/authMiddleware")
 
 router.use(authMiddleware);
 // router.use(allowRoles("ADMIN", "MANAGER"));
@@ -16,10 +17,10 @@ router.get(
   "/all",
   controller.getAllStatuses);
 router.post(
-  "/classify",
+  "/classify", requireRole("ADMIN, MANAGER"),
   controller.classifyUsers);
 router.patch(
-  "/threshold",
+  "/threshold", requireRole("ADMIN, MANAGER"),
   controller.updateThreshold);
 
 module.exports = router;

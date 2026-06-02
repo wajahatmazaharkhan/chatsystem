@@ -32,46 +32,16 @@ const daysInactive = (lastActiveAt) => {
 
 /*
 ==================================================
-AUTH SERVICE INTEGRATION
-==================================================
-*/
-let cachedToken = null;
-let tokenExpiresAt = null;
-
-const getServiceToken = async () => {
-  if (cachedToken && tokenExpiresAt && Date.now() < tokenExpiresAt) {
-    return cachedToken;
-  }
-  try {
-    const AUTH_SERVICE = process.env.AUTH_SERVICE || 'http://localhost:3002';
-    const response = await axios.post(`${AUTH_SERVICE}/auth/login`, {
-      email: "admin@cohort.com",
-      password: "admin123"
-    });
-    if (response.data && response.data.token) {
-      cachedToken = response.data.token;
-      tokenExpiresAt = Date.now() + 50 * 60 * 1000; // cache for 50 minutes
-      return cachedToken;
-    }
-  } catch (err) {
-    console.error("Failed to authenticate with Auth Service:", err.message);
-  }
-  return null;
-};
-
-/*
-==================================================
 EVALUATE STUDENT
 ==================================================
 */
-exports.evaluateStudent = async (user_id) => {
+exports.evaluateStudent = async (user_id, authHeader) => {
   let latest = null;
   try {
-    const ACTIVITY_SERVICE = process.env.ACTIVITY_SERVICE || 'http://localhost:3005';
-    const token = await getServiceToken();
+    const ACTIVITY_SERVICE = process.env.ACTIVITY_SERVICE || 'http://localhost:5005';
     
     const response = await axios.get(`${ACTIVITY_SERVICE}/v1/activity/user/${user_id}`, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: authHeader }
     });
     
     // activity-service returns { success: true, data: [ logs... ] }
@@ -79,8 +49,16 @@ exports.evaluateStudent = async (user_id) => {
       latest = response.data.data[0];
     }
   } catch (err) {
-    console.error(`Failed to fetch activity for user ${user_id} from Module 5:`, err.message);
-  }
+      console.error(`Failed to fetch activity for user ${user_id} from Module 5:`, err.message);
+      const status = err.response?.status || 500;
+      const message = err.response?.data?.message || err.response?.data || err.message;
+
+      throw {
+        status,
+        message,
+      };
+
+    }
 
   const lastActiveAt = latest?.timestamp || new Date(0);
 
@@ -108,7 +86,7 @@ exports.evaluateStudent = async (user_id) => {
       status_changed_at,
       transition_count,
     },
-    { upsert: true, new: true }
+    { upsert: true, returnDocument: "after" }
   );
 };
 
@@ -117,18 +95,25 @@ exports.evaluateStudent = async (user_id) => {
 FORMAT USER (UI CONTRACT FIX)
 ==================================================
 */
-const formatUser = async (statusDoc) => {
+const formatUser = async (statusDoc, authHeader) => {
   let user = null;
   try {
-    const USER_SERVICE = process.env.USER_SERVICE || 'http://localhost:3004';
-    const token = await getServiceToken();
+    const USER_SERVICE = process.env.USER_SERVICE || 'http://localhost:5002';
     const res = await axios.get(`${USER_SERVICE}/users/${statusDoc.user_id}`, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: authHeader }
     });
     user = res.data;
   } catch (err) {
-    console.error(`Failed to fetch user ${statusDoc.user_id} from User Service:`, err.message);
-  }
+      console.error(`Failed to fetch user ${statusDoc.user_id} from User Service:`, err.message);
+      const status = err.response?.status || 500;
+      const message = err.response?.data?.message || err.response?.data || err.message;
+
+      throw {
+        status,
+        message,
+      };
+
+    }
 
   return {
     user_id: user?.user_id || statusDoc.user_id,
@@ -146,9 +131,9 @@ const formatUser = async (statusDoc) => {
 SINGLE USER
 ==================================================
 */
-exports.getStudentStatus = async (user_id) => {
-  const result = await exports.evaluateStudent(user_id);
-  return await formatUser(result);
+exports.getStudentStatus = async (user_id, authHeader) => {
+  const result = await exports.evaluateStudent(user_id, authHeader);
+  return await formatUser(result, authHeader);
 };
 
 /*
@@ -156,20 +141,32 @@ exports.getStudentStatus = async (user_id) => {
 GROUP
 ==================================================
 */
-exports.getGroupStatus = async (group_id) => {
+exports.getGroupStatus = async (group_id, authHeader) => {
   let group = null;
   try {
-    const GROUP_SERVICE = process.env.GROUP_SERVICE || 'http://localhost:3006';
-    const token = await getServiceToken();
+    const GROUP_SERVICE = process.env.GROUP_SERVICE || 'http://localhost:5003/v1';
     const res = await axios.get(`${GROUP_SERVICE}/groups/${group_id}`, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: authHeader }
     });
     group = res.data;
   } catch (err) {
     console.error(`Failed to fetch group ${group_id} from Group Service:`, err.message);
+    const status = err.response?.status || 500;
+    const message = err.response?.data?.message || err.response?.data || err.message;
+
+    throw {
+      status,
+      message,
+    };
+
   }
 
-  if (!group) throw new Error("Group not found");
+  if (!group) {
+    throw {
+      status: 404,
+      message: "Group not found"
+    };
+  }
 
   let active = 0;
   let inactive = 0;
@@ -177,8 +174,8 @@ exports.getGroupStatus = async (group_id) => {
   const students = [];
 
   for (const user_id of group.members) {
-    const result = await exports.evaluateStudent(user_id);
-    const formatted = await formatUser(result);
+    const result = await exports.evaluateStudent(user_id, authHeader);
+    const formatted = await formatUser(result, authHeader);
 
     if (result.status === "ACTIVE") active++;
     else inactive++;
@@ -205,17 +202,24 @@ exports.getGroupStatus = async (group_id) => {
 ALL USERS (IMPORTANT FOR UI DASHBOARD)
 ==================================================
 */
-exports.getAllStatuses = async () => {
+exports.getAllStatuses = async (authHeader) => {
   let users = [];
   try {
-    const USER_SERVICE = process.env.USER_SERVICE || 'http://localhost:3004';
-    const token = await getServiceToken();
+    const USER_SERVICE = process.env.USER_SERVICE || 'http://localhost:5002';
     const res = await axios.get(`${USER_SERVICE}/users`, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: authHeader }
     });
     users = res.data.items || res.data || [];
   } catch (err) {
     console.error(`Failed to fetch users from User Service:`, err.message);
+    const status = err.response?.status || 500;
+    const message = err.response?.data?.message || err.response?.data || err.message;
+
+    throw {
+      status,
+      message,
+    };
+
   }
 
   let active = 0;
@@ -224,8 +228,8 @@ exports.getAllStatuses = async () => {
   const results = [];
 
   for (const u of users) {
-    const r = await exports.evaluateStudent(u.user_id || u._id);
-    const formatted = await formatUser(r);
+    const r = await exports.evaluateStudent(u.user_id || u._id, authHeader);
+    const formatted = await formatUser(r, authHeader);
 
     if (r.status === "ACTIVE") active++;
     else inactive++;
@@ -248,25 +252,31 @@ exports.getAllStatuses = async () => {
 CLASSIFY
 ==================================================
 */
-exports.classifyAllUsers = async (threshold_days) => {
+exports.classifyAllUsers = async (threshold_days, authHeader) => {
   if (threshold_days) {
     THRESHOLD_HOURS = Number(threshold_days) * 24;
   }
 
-  const USER_SERVICE = process.env.USER_SERVICE || 'http://localhost:3004';
-  const token = await getServiceToken();
+  const USER_SERVICE = process.env.USER_SERVICE || 'http://localhost:5002';
   let users = [];
   try {
     const res = await axios.get(`${USER_SERVICE}/users`, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: authHeader }
     });
     users = res.data.items || res.data || [];
   } catch (err) {
     console.error(`Failed to fetch users for classification:`, err.message);
+    const status = err.response?.status || 500;
+    const message = err.response?.data?.message || err.response?.data || err.message;
+
+    throw {
+      status,
+      message,
+    };
   }
 
   for (const u of users) {
-    await exports.evaluateStudent(u.user_id || u._id);
+    await exports.evaluateStudent(u.user_id || u._id, authHeader);
   }
 
   return {

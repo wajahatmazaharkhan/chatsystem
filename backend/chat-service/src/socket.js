@@ -15,7 +15,7 @@ const initSocket = (server) => {
 
     // Authentication Middleware
     io.use((socket, next) => {
-        const token = socket.handshake.auth.token;
+        const token = socket.handshake.auth?.token || socket.handshake.headers?.authorization?.replace("Bearer ", "");
         if (!token) {
             return next(new Error('Authentication error: Token required'));
         }
@@ -36,15 +36,20 @@ const initSocket = (server) => {
             try {
                 // IMPORTANT: If testing with mock frontend string IDs (like 'g1'), 
                 // you might want to skip or adapt this MongoDB validation block temporarily.
-                const group = await Group.findOne({
-                    _id: groupId,
-                    members: socket.user.user_id
-                });
+                const group = await Group.findById(groupId);
 
                 if (!group) {
-                    return socket.emit('error_message', 'Not allowed to join this group');
+                    return socket.emit("error_message", "Group not found");
                 }
-                
+
+                const isMember = group.members.some(
+                    (id) => id.toString() === socket.user.user_id
+                );
+
+                if (!isMember) {
+                    return socket.emit("error_message", "Not allowed to join this group");
+                }
+
                 socket.join(groupId.toString());
                 console.log(`User ${socket.user.user_id} joined room ${groupId}`);
             } catch (err) {
@@ -62,7 +67,7 @@ const initSocket = (server) => {
             socket.to(groupId.toString()).emit('message_received', {
                 groupId,
                 id: Date.now(),
-                sender,
+                sender: socket.user.userId,
                 text,
                 time,
                 isMe: false // It will evaluate as a remote user message for other recipients
