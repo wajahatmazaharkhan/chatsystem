@@ -14,6 +14,8 @@ import GroupList from "../pages/GroupList";
 
 import GroupDetails from "../pages/GroupDetails";
 
+import GroupChatDashboard from "../pages/GroupChatDashboard";
+
 export default function AppRoutes() {
     return (
         <BrowserRouter>
@@ -43,6 +45,12 @@ export default function AppRoutes() {
                         path="/groups/:id"
                         element={<GroupDetails />}
                     />
+
+                    <Route
+                        path="/groups/chat"
+                        element={<GroupChatDashboard />} 
+                    />
+
                 </Routes>
             </DashboardLayout>
         </BrowserRouter>
