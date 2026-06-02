@@ -7,13 +7,14 @@ const rbacMiddleware = require('../../middlewares/rbac.middleware');
 const createServiceProxy = require('../../middlewares/proxy');
 
 // --- Proxies ---
-const authProxy = createServiceProxy(config.modules.auth);
-const usersProxy = createServiceProxy(config.modules.users);
-const groupsProxy = createServiceProxy(config.modules.groups);
-const chatProxy = createServiceProxy(config.modules.chat);
-const activityProxy = createServiceProxy(config.modules.activity);
-const statusProxy = createServiceProxy(config.modules.status);
-const analyticsProxy = createServiceProxy(config.modules.analytics);
+const authProxy = createServiceProxy(config.modules.auth, '/auth');
+const usersProxy = createServiceProxy(config.modules.users, '/users');
+const batchesProxy = createServiceProxy(config.modules.groups, '/v1/batches');
+const groupsProxy = createServiceProxy(config.modules.groups, '/v1/groups');
+const chatProxy = createServiceProxy(config.modules.chat, '/v1/chat');
+const activityProxy = createServiceProxy(config.modules.activity, '/v1/activity');
+const statusProxy = createServiceProxy(config.modules.status, '/v1/status');
+const analyticsProxy = createServiceProxy(config.modules.analytics, '/analytics');
 
 // ==========================================
 // Module 1: Auth
@@ -33,7 +34,7 @@ router.use('/users', authMiddleware, usersProxy);
 // ==========================================
 // Module 3: Groups & Batches
 // ==========================================
-router.use('/batches', authMiddleware, rbacMiddleware(['ADMIN', 'MANAGER']), groupsProxy);
+router.use('/batches', authMiddleware, rbacMiddleware(['ADMIN', 'MANAGER']), batchesProxy);
 router.use('/groups', authMiddleware, groupsProxy);
 
 // ==========================================

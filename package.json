@@ -1,0 +1,12 @@
+{
+  "name": "chatsystem",
+  "version": "1.0.0",
+  "description": "Root orchestrator for Chat System microservices",
+  "scripts": {
+    "install:all": "npm install --prefix backend/api-gateway && npm install --prefix backend/auth-service && npm install --prefix backend/user-service && npm install --prefix backend/group-service && npm install --prefix backend/chat-service && npm install --prefix backend/activity-service && npm install --prefix backend/status-service && npm install --prefix backend/analytics-service",
+    "dev:all": "concurrently -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold,bgCyan.bold,bgRed.bold,bgYellow.bold,bgWhite.bold,bgGray.bold\" -n \"GATEWAY,AUTH,USER,GROUP,CHAT,ACTIVITY,STATUS,ANALYTICS\" \"npm run dev --prefix backend/api-gateway\" \"npm run dev --prefix backend/auth-service\" \"npm run dev --prefix backend/user-service\" \"npm run dev --prefix backend/group-service\" \"npm run dev --prefix backend/chat-service\" \"npm run dev --prefix backend/activity-service\" \"npm run dev --prefix backend/status-service\" \"npm run dev --prefix backend/analytics-service\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

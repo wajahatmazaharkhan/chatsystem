@@ -13,7 +13,7 @@ const authMiddleware = async (req, res, next) => {
     }
 
     try {
-        const AUTH_VALIDATE_URL = process.env.AUTH_VALIDATE_URL || 'http://localhost:3002/auth/validate';
+        const AUTH_VALIDATE_URL = process.env.AUTH_VALIDATE_URL || 'http://localhost:5001/auth/validate';
         const response = await axios.get(AUTH_VALIDATE_URL, {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -36,4 +36,19 @@ const authMiddleware = async (req, res, next) => {
     }
 };
 
-module.exports = authMiddleware;
+const requireRole = (...roles) => {
+    return (req, res, next) => {
+        if(!req.user || !roles.includes(req.user.role)) {
+           const error = new Error('Access denied: insufficient permissions');
+           error.statusCode = 403;
+
+           return next(error);
+        }
+        next();
+    }
+}
+
+module.exports = {
+    authMiddleware,
+    requireRole
+};

@@ -1,33 +1,57 @@
-const Group = require('../../schema/Group');
+const axios = require('axios');
 
-// NOTE: During development, group membership is checked directly from MongoDB.
-// For integration with Module 3 (Group), swap this out with the axios call to /groups/:id/members.
 const checkGroupAccess = async (req, res, next) => {
-    const groupId = req.params.group_id || req.body.group_id;
-    const { user_id, role } = req.user;
+  const groupId = req.params.group_id || req.body.group_id;
+  const { user_id, role } = req.user;
 
-    // Admins have direct access to all groups
-    if (role === 'ADMIN') return next();
+  if (!groupId) {
+    return res.status(400).json({
+      error: 'group_id is required'
+    });
+  }
 
-    try {
-        const group = await Group.findById(groupId);
+  // Admin bypass
+  if (role === 'ADMIN') {
+    return next();
+  }
 
-        if (!group) {
-            return res.status(404).json({ error: "Group not found" });
+  try {
+    const response = await axios.get(
+      `${process.env.GROUP_SERVICE_URL}/groups/${groupId}/members/validate`,
+      {
+        params: {
+          user_id
+        },
+        headers: {
+          Authorization: req.headers.authorization
         }
+      }
+    );
 
-        const isMember = group.members.some(
-            (memberId) => memberId.toString() === user_id.toString()
-        );
-
-        if (!isMember) {
-            return res.status(403).json({ error: "Access Denied: You are not a member of this group" });
-        }
-
-        next();
-    } catch (error) {
-        return res.status(500).json({ error: "Failed to verify group membership" });
+    if (!response.data.belongs_to_group) {
+    return res.status(403).json({
+        error: 'Access Denied: You are not a member of this group'
+    });
     }
+
+    next();
+  } catch (error) {
+
+    if (error.response?.status === 404) {
+      return res.status(404).json({
+        error: 'Group not found'
+      });
+    }
+
+    console.error(
+      'Group membership validation failed:',
+      error.response?.data || error.message
+    );
+
+    return res.status(500).json({
+      error: 'Failed to verify group membership'
+    });
+  }
 };
 
 module.exports = checkGroupAccess;

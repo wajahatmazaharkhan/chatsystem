@@ -1,0 +1,134 @@
+
+.manager-dashboard {
+  padding: 32px;
+  color: var(--text-primary);
+}
+
+.manager-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.manager-header h1 {
+  font-size: 28px;
+  margin-bottom: 6px;
+}
+
+.manager-header p {
+  color: var(--text-secondary);
+}
+
+.manager-badge {
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+.manager-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.manager-stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 22px;
+}
+
+.manager-stat-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.manager-stat-value {
+  font-size: 34px;
+  font-weight: 700;
+}
+
+.manager-stat-sub {
+  margin-top: 8px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.group-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.panel-title {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+}
+
+.group-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.group-table th,
+.group-table td {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.progress-wrap {
+  height: 8px;
+  width: 160px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--accent),
+    var(--active)
+  );
+}
+
+.health-badge {
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.health-badge.healthy {
+  background: rgba(16,185,129,0.1);
+  color: var(--active);
+}
+
+.health-badge.risk {
+  background: rgba(251,146,60,0.1);
+  color: #fb923c;
+}
+
+.health-badge.critical {
+  background: rgba(244,63,94,0.1);
+  color: var(--inactive);
+}
+
+.active {
+  color: var(--active);
+}
+
+.inactive {
+  color: var(--inactive);
+}
+

@@ -1,4 +1,4 @@
-const { createActivityLog, fetchUserActivityLogs } = require('../services/activity.service')
+const { createActivityLog, fetchUserActivityLogs } = require('../services/activity.services')
 
 const logActivity = async(req, res, next) => {
     try{

@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { createBatch } from "../services/batchService";
 import { calculateGroups } from "../utils/groupCalculator";
+import { useEffect } from "react";
+import { getUsers } from "../services/userService";
 
 export default function BatchCreate() {
   const [name, setName] = useState("");
@@ -8,15 +10,37 @@ export default function BatchCreate() {
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
+  const [students, setStudents] = useState([]);
 
-  //TODO: For real students data - need backend api to get all students
-  const students = [
-    { id: "stud1", name: "John" },
-    { id: "stud2", name: "Alice" },
-    { id: "stud3", name: "Rahul" },
-    { id: "stud4", name: "Sara" },
-  ];
 
+const fetchStudents = async () => {
+  try {
+    const data = await getUsers();
+
+    const studentList = data.items
+      .filter(
+        (user) =>
+          user.role === "STUDENT" &&
+          user.is_active
+      )
+      .map((user) => ({
+        id: user.user_id,
+        name: user.name,
+        email: user.email,
+      }));
+
+    setStudents(studentList);
+  } catch (error) {
+    console.error(
+      "Failed to load students",
+      error
+    );
+  }
+};
+
+useEffect(() => {
+    fetchStudents();
+  }, []);
   const groups = calculateGroups(studentIds.length);
 
   const toggleStudent = (id) => {

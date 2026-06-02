@@ -4,8 +4,6 @@ const controller = require('../controllers/user.controller');
 const auth = require('../middleware/auth');
 const rbac = require('../middleware/rbac');
 
-
-console.log(" USERS ROUTE FILE LOADED");
 // GET /users
 router.get('/', auth, controller.listUsers);
 
