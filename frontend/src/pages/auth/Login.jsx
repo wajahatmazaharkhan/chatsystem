@@ -3,6 +3,7 @@ import { Mail, Lock, Eye, EyeOff, XCircle } from "lucide-react";
 import { useEffect } from "react";
 import { handleLogin } from "../../services/authService";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -14,6 +15,7 @@ export default function App() {
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth();
 
 const loginUser = async () => {
   try {
@@ -22,14 +24,8 @@ const loginUser = async () => {
 
     const data = await handleLogin(email, password);
 
-    localStorage.setItem("token", data.token);
-
-   setUserData(data.user);
-
-    localStorage.setItem(
-      "user",
-      JSON.stringify(data.user)
-    );
+    login(data.user, data.token);
+    setUserData(data.user);
 
     const role = data.user.role;
 
@@ -59,6 +55,10 @@ useEffect(() => {
 
     if (user.role === "ADMIN") {
       navigate("/dashboard/analytics");
+    } else if (user.role === "MANAGER") {
+      navigate("/dashboard/groups");
+    } else if (user.role === "STUDENT") {
+      navigate("/dashboard/chat");
     }
   }
 }, []);

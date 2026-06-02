@@ -5,6 +5,8 @@ import {
 } from "react-router-dom";
 
 import DashboardLayout from "../components/layout/DashboardLayout";
+import ProtectedRoute from "../components/ProtectedRoute";
+import { useAuth } from "../context/AuthContext";
 
 import Login from "../pages/auth/Login";
 
@@ -16,9 +18,23 @@ import GroupList from "../pages/GroupList";
 import GroupDetails from "../pages/GroupDetails";
 import Users from "../pages/Users/Users";
 import StudentDashboard from "../pages/Analytics/StudentDashboard";
+import ManagerDashboard from "../pages/Analytics/ManagerDashboard";
 import AdminDashboard from "../pages/Analytics/AdminDashboard";
 import ActivityUsers from "../pages/Activity/ActivityUsers";
 import UserActivityLogs from "../pages/Activity/UserActivityLogs";
+
+function DashboardResolver() {
+  const { user } = useAuth();
+  const role = user?.role?.toUpperCase();
+
+  if (role === "MANAGER") {
+    return <ManagerDashboard />;
+  }
+  if (role === "STUDENT") {
+    return <StudentDashboard />;
+  }
+  return <AdminDashboard />;
+}
 
 export default function AppRoutes() {
   return (
@@ -38,59 +54,97 @@ export default function AppRoutes() {
 
         <Route
           path="/student/dashboard"
-          element={<StudentDashboard />}
+          element={
+            <ProtectedRoute allowedRoles={["STUDENT"]}>
+              <StudentDashboard />
+            </ProtectedRoute>
+          }
         />
 
         {/* Dashboard Routes */}
         <Route
           path="/dashboard"
           element={
-            <DashboardLayout />
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
           }
         >
           <Route
             path="/dashboard/analytics"
-            element={<AdminDashboard />}
+            element={<DashboardResolver />}
           />
 
           <Route
             path="/dashboard/users"
-            element={<Users />}
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN"]}>
+                <Users />
+              </ProtectedRoute>
+            }
           />
 
           <Route
             path="/dashboard/batches/create"
-            element={<BatchCreate />}
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN"]}>
+                <BatchCreate />
+              </ProtectedRoute>
+            }
           />
 
           <Route
             path="/dashboard/batches"
-            element={<BatchList />}
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN"]}>
+                <BatchList />
+              </ProtectedRoute>
+            }
           />
 
           <Route
             path="/dashboard/batches/:id"
-            element={<BatchDetails />}
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN"]}>
+                <BatchDetails />
+              </ProtectedRoute>
+            }
           />
 
           <Route
             path="/dashboard/groups"
-            element={<GroupList />}
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN", "MANAGER"]}>
+                <GroupList />
+              </ProtectedRoute>
+            }
           />
 
           <Route
             path="/dashboard/groups/:id"
-            element={<GroupDetails />}
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN", "MANAGER"]}>
+                <GroupDetails />
+              </ProtectedRoute>
+            }
           />
 
           <Route
             path="/dashboard/activity"
-            element={<ActivityUsers />}
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN", "MANAGER", "STUDENT"]}>
+                <ActivityUsers />
+              </ProtectedRoute>
+            }
           />
 
           <Route
             path="/dashboard/activity/:userId"
-            element={<UserActivityLogs />}
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN", "MANAGER", "STUDENT"]}>
+                <UserActivityLogs />
+              </ProtectedRoute>
+            }
           />
         </Route>
 

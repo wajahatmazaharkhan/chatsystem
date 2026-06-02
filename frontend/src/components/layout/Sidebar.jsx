@@ -10,42 +10,104 @@ import {
 
 import { NavLink, useNavigate } from "react-router-dom";
 import { handleLogout } from "../../services/authService";
+import { useAuth } from "../../context/AuthContext";
 
-const navItems = [
-  {
-    name: "Analytics",
-    path: "/dashboard/analytics",
-    icon: <LayoutDashboard size={20} />,
+const roleNavItems = {
+  ADMIN: [
+    {
+      name: "Analytics",
+      path: "/dashboard/analytics",
+      icon: <LayoutDashboard size={20} />,
+    },
+    {
+      name: "Users",
+      path: "/dashboard/users",
+      icon: <Users size={20} />,
+    },
+    {
+      name: "Batches",
+      path: "/dashboard/batches",
+      icon: <BookOpen size={20} />,
+    },
+    {
+      name: "Groups",
+      path: "/dashboard/groups",
+      icon: <Layers size={20} />,
+    },
+    {
+      name: "Activity",
+      path: "/dashboard/activity",
+      icon: <Activity size={20} />,
+    },
+    {
+      name: "Chat",
+      path: "/dashboard/chat",
+      icon: <MessageSquare size={20} />,
+    },
+  ],
+  MANAGER: [
+    {
+      name: "Analytics",
+      path: "/dashboard/analytics",
+      icon: <LayoutDashboard size={20} />,
+    },
+    {
+      name: "Groups",
+      path: "/dashboard/groups",
+      icon: <Layers size={20} />,
+    },
+    {
+      name: "Activity",
+      path: "/dashboard/activity",
+      icon: <Activity size={20} />,
+    },
+    {
+      name: "Chat",
+      path: "/dashboard/chat",
+      icon: <MessageSquare size={20} />,
+    },
+  ],
+  STUDENT: [
+    {
+      name: "Analytics",
+      path: "/dashboard/analytics",
+      icon: <LayoutDashboard size={20} />,
+    },
+    {
+      name: "Activity",
+      path: "/dashboard/activity",
+      icon: <Activity size={20} />,
+    },
+    {
+      name: "Chat",
+      path: "/dashboard/chat",
+      icon: <MessageSquare size={20} />,
+    },
+  ],
+};
+
+const roleMetadata = {
+  ADMIN: {
+    sidebarSubtitle: "Admin Control Center",
+    roleName: "System Administrator",
   },
-  {
-    name: "Users",
-    path: "/dashboard/users",
-    icon: <Users size={20} />,
+  MANAGER: {
+    sidebarSubtitle: "Manager Control Center",
+    roleName: "Group Manager",
   },
-  {
-    name: "Batches",
-    path: "/dashboard/batches",
-    icon: <BookOpen size={20} />,
+  STUDENT: {
+    sidebarSubtitle: "Student Portal",
+    roleName: "Student",
   },
-  {
-    name: "Groups",
-    path: "/dashboard/groups",
-    icon: <Layers size={20} />,
-  },
-  {
-    name: "Activity",
-    path: "/dashboard/activity",
-    icon: <Activity size={20} />,
-  },
-  {
-    name: "Chat",
-    path: "/dashboard/chat",
-    icon: <MessageSquare size={20} />,
-  },
-];
+};
 
 export default function Sidebar() {
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  const role = user?.role?.toUpperCase() || "STUDENT";
+  const navItems = roleNavItems[role] || roleNavItems.STUDENT;
+  const metadata = roleMetadata[role] || roleMetadata.STUDENT;
 
   const logoutUser = async () => {
     try {
@@ -53,15 +115,10 @@ export default function Sidebar() {
     } catch (err) {
       console.error(err);
     } finally {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-
+      logout();
       navigate("/login");
     }
   };
-  const user = JSON.parse(
-  localStorage.getItem("user")
-);
 
   return (
     <aside className="fixed left-0 top-0 w-72 h-screen bg-slate-900 border-r border-slate-800 flex flex-col">
@@ -72,7 +129,7 @@ export default function Sidebar() {
         </h1>
 
         <p className="text-slate-400 mt-1">
-          Admin Control Center
+          {metadata.sidebarSubtitle}
         </p>
       </div>
 
@@ -105,17 +162,17 @@ export default function Sidebar() {
         <div className="flex items-center gap-3">
           <img
             src="https://i.pravatar.cc/50"
-            alt="Admin"
+            alt={role}
             className="w-12 h-12 rounded-full"
           />
 
           <div>
             <h3 className="text-white font-medium">
-            {user?.name || "Admin"}
+              {user?.name || "User"}
             </h3>
 
             <p className="text-slate-400 text-sm">
-              System Administrator
+              {metadata.roleName}
             </p>
           </div>
         </div>
