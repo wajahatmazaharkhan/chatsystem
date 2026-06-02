@@ -14,32 +14,32 @@ import { handleLogout } from "../../services/authService";
 const navItems = [
   {
     name: "Analytics",
-    path: "/analytics",
+    path: "/dashboard/analytics",
     icon: <LayoutDashboard size={20} />,
   },
   {
     name: "Users",
-    path: "/users",
+    path: "/dashboard/users",
     icon: <Users size={20} />,
   },
   {
     name: "Batches",
-    path: "/batches",
+    path: "/dashboard/batches",
     icon: <BookOpen size={20} />,
   },
   {
     name: "Groups",
-    path: "/groups",
+    path: "/dashboard/groups",
     icon: <Layers size={20} />,
   },
   {
     name: "Activity",
-    path: "/activity",
+    path: "/dashboard/activity",
     icon: <Activity size={20} />,
   },
   {
     name: "Chat",
-    path: "/chat",
+    path: "/dashboard/chat",
     icon: <MessageSquare size={20} />,
   },
 ];

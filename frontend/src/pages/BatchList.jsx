@@ -40,7 +40,7 @@ export default function BatchList() {
             <button 
                 className="mt-3 mb-2 bg-blue-700 text-white px-6 py-3 rounded-lg"
                 onClick={() =>
-                    navigate(`/batches/create`)
+                    navigate(`/dashboard/batches/create`)
                   }
             >Create new batch</button>
 

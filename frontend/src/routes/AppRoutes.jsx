@@ -17,6 +17,8 @@ import GroupDetails from "../pages/GroupDetails";
 import Users from "../pages/Users/Users";
 import StudentDashboard from "../pages/Analytics/StudentDashboard";
 import AdminDashboard from "../pages/Analytics/AdminDashboard";
+import ActivityUsers from "../pages/Activity/ActivityUsers";
+import UserActivityLogs from "../pages/Activity/UserActivityLogs";
 
 export default function AppRoutes() {
   return (
@@ -24,6 +26,11 @@ export default function AppRoutes() {
       <Routes>
 
         {/* Login Route */}
+        <Route
+          path="/"
+          element={<Login />}
+        />
+
         <Route
           path="/login"
           element={<Login />}
@@ -36,44 +43,54 @@ export default function AppRoutes() {
 
         {/* Dashboard Routes */}
         <Route
-          path="/"
+          path="/dashboard"
           element={
             <DashboardLayout />
           }
         >
           <Route
-            path="/analytics"
+            path="/dashboard/analytics"
             element={<AdminDashboard />}
           />
 
           <Route
-            path="/users"
+            path="/dashboard/users"
             element={<Users />}
           />
 
           <Route
-            path="batches/create"
+            path="/dashboard/batches/create"
             element={<BatchCreate />}
           />
 
           <Route
-            path="batches"
+            path="/dashboard/batches"
             element={<BatchList />}
           />
 
           <Route
-            path="batches/:id"
+            path="/dashboard/batches/:id"
             element={<BatchDetails />}
           />
 
           <Route
-            path="groups"
+            path="/dashboard/groups"
             element={<GroupList />}
           />
 
           <Route
-            path="groups/:id"
+            path="/dashboard/groups/:id"
             element={<GroupDetails />}
+          />
+
+          <Route
+            path="/dashboard/activity"
+            element={<ActivityUsers />}
+          />
+
+          <Route
+            path="/dashboard/activity/:userId"
+            element={<UserActivityLogs />}
           />
         </Route>
 

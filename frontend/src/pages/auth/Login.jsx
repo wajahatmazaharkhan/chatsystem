@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Mail, Lock, Eye, EyeOff, LogOut, CheckCircle, XCircle } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, XCircle } from "lucide-react";
 import { useEffect } from "react";
-import { handleLogin, handleLogout } from "../../services/authService";
+import { handleLogin } from "../../services/authService";
 import { useNavigate } from "react-router-dom";
 
 export default function App() {
@@ -51,14 +51,6 @@ const loginUser = async () => {
   }
 };
 
-const logoutUser = async () => {
-  await handleLogout();
-
-  setUserData(null);
-
-  localStorage.removeItem("user");
-};
-
 useEffect(() => {
   const savedUser = localStorage.getItem("user");
 
@@ -66,7 +58,7 @@ useEffect(() => {
     const user = JSON.parse(savedUser);
 
     if (user.role === "ADMIN") {
-      navigate("/analytics");
+      navigate("/dashboard/analytics");
     }
   }
 }, []);
@@ -161,5 +153,3 @@ useEffect(() => {
     </div>
   );
 }
-
-
