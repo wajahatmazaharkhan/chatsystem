@@ -56,8 +56,24 @@ router.use('/status', authMiddleware, statusProxy);
 
 // ==========================================
 // Module 7: Analytics
-// Restricted to ADMIN and MANAGER
 // ==========================================
-router.use('/analytics', authMiddleware, rbacMiddleware(['ADMIN', 'MANAGER']), analyticsProxy);
+const analyticsRbac = (req, res, next) => {
+  const { role } = req.user;
+  if (req.path === '/student' || req.url === '/student') {
+    if (['ADMIN', 'MANAGER', 'STUDENT'].includes(role)) {
+      return next();
+    }
+  } else {
+    if (['ADMIN', 'MANAGER'].includes(role)) {
+      return next();
+    }
+  }
+  return res.status(403).json({
+    status: 'error',
+    message: 'Forbidden: You do not have the required permissions to access this resource.'
+  });
+};
+
+router.use('/analytics', authMiddleware, analyticsRbac, analyticsProxy);
 
 module.exports = router;

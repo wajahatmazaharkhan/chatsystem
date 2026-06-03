@@ -32,6 +32,17 @@ export default function GroupDetails() {
     return <Loader />;
   }
 
+  if (!group) {
+    return (
+      <div className="p-8">
+        <div className="bg-red-500/10 text-red-400 border border-red-500/20 p-6 rounded-xl">
+          <h2 className="text-xl font-bold mb-2">Access Forbidden / Group Not Found</h2>
+          <p>You do not have permission to access this group or it does not exist.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <h1 className="text-4xl font-bold">

@@ -135,8 +135,13 @@ exports.getStudentAnalytics = async (userId, token) => {
     };
 
     // 1. Fetch user's activity logs
-    const activityRes = await axios.get(`${API_GATEWAY_URL}/activity/user/${userId}`, config);
-    const logs = activityRes.data.data || [];
+    let logs = [];
+    try {
+      const activityRes = await axios.get(`${API_GATEWAY_URL}/activity/user/${userId}`, config);
+      logs = activityRes.data.data || [];
+    } catch (activityErr) {
+      console.error('Failed to fetch activity logs in analytics service:', activityErr.message);
+    }
 
     // 2. Fetch user's status for the ACTIVE/INACTIVE state & group ID
     let statusObj = { status: 'INACTIVE', group_id: null };
@@ -294,5 +299,90 @@ exports.getStudentAnalytics = async (userId, token) => {
     };
   } catch (error) {
     throw new Error('Failed to fetch student analytics: ' + error.message);
+  }
+};
+
+exports.getManagerAnalytics = async (managerId, token) => {
+  try {
+    const config = {
+      headers: {
+        Authorization: token
+      }
+    };
+
+    // 1. Fetch all groups
+    const groupsRes = await axios.get(`${API_GATEWAY_URL}/groups`, config);
+    const allGroups = groupsRes.data.groups || groupsRes.data.data || [];
+
+    // 2. Filter groups managed by this manager
+    const managedGroups = allGroups.filter(g => g.manager_id === managerId);
+
+    // 3. For each managed group, fetch details and status
+    const groupDataPromises = managedGroups.map(async (group) => {
+      const groupId = group._id || group.id;
+      
+      // Fetch status for this group
+      let activeCount = 0;
+      let inactiveCount = 0;
+      try {
+        const statusRes = await axios.get(`${API_GATEWAY_URL}/status/group/${groupId}`, config);
+        const groupStatus = statusRes.data || {};
+        activeCount = groupStatus.active_count || groupStatus.active_students || 0;
+        inactiveCount = groupStatus.inactive_count || groupStatus.inactive_students || 0;
+      } catch (err) {
+        console.error(`Failed to fetch status for group ${groupId}:`, err.message);
+      }
+
+      const totalStudents = Array.isArray(group.members) ? group.members.length : 0;
+      const rate = totalStudents > 0 ? parseFloat(((activeCount / totalStudents) * 100).toFixed(1)) : 0;
+
+      return {
+        name: group.name || `Group ${groupId}`,
+        active: activeCount,
+        inactive: inactiveCount,
+        total: totalStudents,
+        rate
+      };
+    });
+
+    const groupsWithStatus = await Promise.all(groupDataPromises);
+
+    // Compute stats
+    const totalGroups = managedGroups.length;
+    const totalStudents = groupsWithStatus.reduce((acc, g) => acc + g.total, 0);
+    const totalActiveStudents = groupsWithStatus.reduce((acc, g) => acc + g.active, 0);
+    const avgEngagement = totalGroups > 0
+      ? parseFloat((groupsWithStatus.reduce((acc, g) => acc + g.rate, 0) / totalGroups).toFixed(1))
+      : 0;
+
+    const stats = [
+      {
+        title: 'Total Groups',
+        value: totalGroups.toString(),
+        sub: 'Managed by you'
+      },
+      {
+        title: 'Total Students',
+        value: totalStudents.toString(),
+        sub: 'Across all groups'
+      },
+      {
+        title: 'Active Students',
+        value: totalActiveStudents.toString(),
+        sub: 'Currently active'
+      },
+      {
+        title: 'Avg Engagement',
+        value: `${avgEngagement}%`,
+        sub: 'Average rate'
+      }
+    ];
+
+    return {
+      stats,
+      groups: groupsWithStatus
+    };
+  } catch (error) {
+    throw new Error('Failed to fetch manager analytics: ' + error.message);
   }
 };

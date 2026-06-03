@@ -64,11 +64,11 @@ export default function UserManagementTable({ users = [], loading = false }) {
               <tr><td colSpan="7" className="py-4 text-center text-gray-500">Loading users...</td></tr>
             ) : users.length === 0 ? (
               <tr><td colSpan="7" className="py-4 text-center text-gray-500">No users found.</td></tr>
-            ) : users.map((u) => {
+) : users.map((u, index) => {
               const initials = u.name ? u.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'U';
               const status = u.is_active ? 'Active' : 'Inactive';
               return (
-              <tr key={u._id || u.id} className="border-b border-gray-700/30 hover:bg-[#2a2b2f] transition-colors">
+              <tr key={u.user_id || u._id || u.id || index} className="border-b border-gray-700/30 hover:bg-[#2a2b2f] transition-colors">
                 <td className="py-3 px-4 flex items-center space-x-3">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold ${getRoleColor(u.role)}`}>
                     {initials}

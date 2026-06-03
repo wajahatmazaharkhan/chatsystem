@@ -49,8 +49,8 @@ const getGroupById = async (req, res) => {
     const validMemberIds = group.members.filter(id => mongoose.Types.ObjectId.isValid(id));
     const membersData = await User.find({ _id: { $in: validMemberIds } }, 'name').lean();
     const member_details = group.members.map(memberId => {
-       const found = membersData.find(u => u._id.toString() === memberId);
-       return found ? { _id: memberId, name: found.name } : { _id: memberId, name: memberId };
+       const found = membersData.find(u => u._id.toString() === memberId.toString());
+       return found ? { _id: memberId.toString(), name: found.name } : { _id: memberId.toString(), name: memberId.toString() };
     });
 
     return res.status(200).json({ ...group, manager_name, member_details });
@@ -84,8 +84,8 @@ const getGroupMembers = async (req, res) => {
     const validMemberIds = group.members.filter(id => mongoose.Types.ObjectId.isValid(id));
     const membersData = await User.find({ _id: { $in: validMemberIds } }, 'name').lean();
     const member_details = group.members.map(memberId => {
-       const found = membersData.find(u => u._id.toString() === memberId);
-       return found ? { _id: memberId, name: found.name } : { _id: memberId, name: memberId };
+       const found = membersData.find(u => u._id.toString() === memberId.toString());
+       return found ? { _id: memberId.toString(), name: found.name } : { _id: memberId.toString(), name: memberId.toString() };
     });
 
     return res.status(200).json({

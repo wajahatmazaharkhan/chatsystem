@@ -25,6 +25,17 @@ app.use(loggerMiddleware);
 app.use(helmet());
 app.use(cors());
 
+// Socket.io Proxy Setup (must be before body parsing)
+const { createProxyMiddleware } = require('http-proxy-middleware');
+const config = require('./config/env');
+const socketProxy = createProxyMiddleware({
+  target: config.modules.chat,
+  ws: true,
+  changeOrigin: true
+});
+app.use('/socket.io', socketProxy);
+app.socketProxy = socketProxy;
+
 // 4. Rate Limiting
 app.use(rateLimiter);
 

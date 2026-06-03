@@ -68,4 +68,20 @@ exports.getStudentAnalytics = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+};
+
+exports.getManagerAnalytics = async (req, res) => {
+  try {
+    const token = req.headers.authorization;
+    const managerId = req.headers['x-user-id'];
+
+    if (!managerId) {
+      return res.status(400).json({ error: 'Manager User ID header missing' });
+    }
+
+    const result = await analyticsService.getManagerAnalytics(managerId, token);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
