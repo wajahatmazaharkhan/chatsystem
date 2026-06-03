@@ -4,5 +4,7 @@ const analyticsController = require('../controllers/analyticsController');
 
 router.get('/admin', analyticsController.getAdminAnalytics);
 router.get('/group/:id', analyticsController.getGroupAnalytics);
+router.get('/student', analyticsController.getStudentAnalytics);
 
 module.exports = router;
+

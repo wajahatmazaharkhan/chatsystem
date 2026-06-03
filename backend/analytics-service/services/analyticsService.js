@@ -120,3 +120,179 @@ exports.getGroupAnalytics = async (group_id, token) => {
     throw new Error('Failed to fetch group analytics: ' + error.message);
   }
 };
+
+/*
+==================================================
+STUDENT DASHBOARD
+==================================================
+*/
+exports.getStudentAnalytics = async (userId, token) => {
+  try {
+    const config = {
+      headers: {
+        Authorization: token
+      }
+    };
+
+    // 1. Fetch user's activity logs
+    const activityRes = await axios.get(`${API_GATEWAY_URL}/activity/user/${userId}`, config);
+    const logs = activityRes.data.data || [];
+
+    // 2. Fetch user's status for the ACTIVE/INACTIVE state & group ID
+    let statusObj = { status: 'INACTIVE', group_id: null };
+    try {
+      const statusRes = await axios.get(`${API_GATEWAY_URL}/status/user/${userId}`, config);
+      if (statusRes.data) {
+        statusObj = statusRes.data;
+      }
+    } catch (statusErr) {
+      console.error('Failed to fetch status in analytics service:', statusErr.message);
+    }
+
+    // --- Compute stats ---
+    // A. Login Frequency
+    const today = new Date();
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay());
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    const loginActivities = logs.filter(activity => {
+      if (activity.activity_type !== 'LOGIN') return false;
+      const activityDate = new Date(activity.timestamp);
+      return activityDate >= startOfWeek && activityDate <= endOfWeek;
+    });
+
+    const uniqueLoginDaysSet = new Set(
+      loginActivities.map(activity => new Date(activity.timestamp).toISOString().split('T')[0])
+    );
+    const loginDays = uniqueLoginDaysSet.size;
+
+    let loginStatus = 'Inactive';
+    if (loginDays > 0) {
+      if (loginDays <= 2) loginStatus = 'Low';
+      else if (loginDays <= 5) loginStatus = 'Medium';
+      else loginStatus = 'Highly Active';
+    }
+
+    // B. Message Volume (all-time or in retrieved logs)
+    const messageActivities = logs.filter(activity => activity.activity_type === 'MESSAGE');
+    const messageCount = messageActivities.length;
+
+    let messageStatus = 'No Engagement';
+    if (messageCount > 0) {
+      if (messageCount <= 3) messageStatus = 'Low';
+      else if (messageCount <= 10) messageStatus = 'Medium';
+      else messageStatus = 'High';
+    }
+
+    // C. Engagement Score
+    const engagementScore = Number((loginDays * 0.4 + messageCount * 0.4).toFixed(1));
+
+    // D. Streak & Badge
+    const uniqueDays = [
+      ...new Set(
+        logs.map(activity => new Date(activity.timestamp).toISOString().split('T')[0])
+      )
+    ];
+    uniqueDays.sort((a, b) => new Date(a) - new Date(b));
+
+    let streak = uniqueDays.length > 0 ? 1 : 0;
+    let maxStreak = streak;
+
+    for (let i = 1; i < uniqueDays.length; i++) {
+      const previousDay = new Date(uniqueDays[i - 1]);
+      const currentDay = new Date(uniqueDays[i]);
+      const diff = (currentDay - previousDay) / (1000 * 60 * 60 * 24);
+
+      if (diff === 1) {
+        streak++;
+        maxStreak = Math.max(maxStreak, streak);
+      } else {
+        streak = 1;
+      }
+    }
+
+    let badge = 'Bronze';
+    if (maxStreak > 5) {
+      if (maxStreak <= 10) badge = 'Silver';
+      else badge = 'Gold';
+    }
+
+    const stats = [
+      {
+        title: 'Login Frequency',
+        value: `${loginDays} Days`,
+        sub: `Status: ${loginStatus}`
+      },
+      {
+        title: 'Message Volume',
+        value: `${messageCount} Messages`,
+        sub: `Status: ${messageStatus}`
+      },
+      {
+        title: 'Engagement Score',
+        value: engagementScore,
+        sub: 'Based on activity & logins'
+      },
+      {
+        title: 'Activity Streak',
+        value: `${maxStreak} Days`,
+        sub: `Badge: ${badge}`
+      }
+    ];
+
+    // --- Compute weeklyActivity chart data ---
+    const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const currentWeekActivities = logs.filter(activity => {
+      const activityDate = new Date(activity.timestamp);
+      return activityDate >= startOfWeek && activityDate <= endOfWeek;
+    });
+
+    const countsByDay = {};
+    daysOfWeek.forEach(d => { countsByDay[d] = 0; });
+
+    currentWeekActivities.forEach(activity => {
+      const date = new Date(activity.timestamp);
+      const day = date.toLocaleDateString('en-US', { weekday: 'short' });
+      if (countsByDay[day] !== undefined) {
+        countsByDay[day]++;
+      }
+    });
+
+    const maxCount = Math.max(...Object.values(countsByDay), 1);
+    const weeklyActivity = daysOfWeek.map(day => ({
+      day,
+      value: Math.round((countsByDay[day] / maxCount) * 100)
+    }));
+
+    // --- Compute achievements ---
+    const achievements = [];
+    if (statusObj.status === 'ACTIVE') {
+      achievements.push('Consistent Participant');
+    }
+    if (maxStreak >= 5) {
+      achievements.push('Streak Master: Active 5+ days in a row!');
+    }
+    if (messageCount >= 10) {
+      achievements.push('Super Chatter: Sent over 10 messages!');
+    }
+    if (loginDays >= 3) {
+      achievements.push('Weekly Regular: Logged in 3+ times this week!');
+    }
+    if (achievements.length === 0) {
+      achievements.push('First Steps: Getting started on your learning journey');
+    }
+
+    return {
+      stats,
+      weeklyActivity,
+      achievements
+    };
+  } catch (error) {
+    throw new Error('Failed to fetch student analytics: ' + error.message);
+  }
+};
