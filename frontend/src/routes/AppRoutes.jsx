@@ -148,13 +148,16 @@ export default function AppRoutes() {
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/dashboard/chat"
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN", "MANAGER", "STUDENT"]}>
+                <GroupChatDashboard />
+              </ProtectedRoute>
+            }
+          />
         </Route>
-
-
-                    <Route
-                        path="/groups/chat"
-                        element={<GroupChatDashboard />} 
-                    />
 
       </Routes>
     </BrowserRouter>
