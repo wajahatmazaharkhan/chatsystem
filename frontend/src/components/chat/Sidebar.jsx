@@ -1,15 +1,93 @@
 import React from 'react';
 // Changed 'Route' to 'Milestone'
-import { LayoutDashboard, Users, MessageSquare, Milestone, UserCircle } from 'lucide-react';
+import { LayoutDashboard, Users, MessageSquare, Milestone, UserCircle, BookOpen, Layers } from 'lucide-react';
+import { Activity } from 'react';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Sidebar() {
-  const navItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', active: false },
-    { icon: Users, label: 'Batches', active: false },
-    { icon: MessageSquare, label: 'Communications', active: true },
-    { icon: Milestone, label: 'Mapping', active: false }, // Updated here
-    { icon: UserCircle, label: 'Profiles', active: false },
-  ];
+  const adminItems = [
+  {
+    name: "Analytics",
+    path: "/dashboard/analytics",
+    icon: <LayoutDashboard size={20} />,
+  },
+  {
+    name: "Users",
+    path: "/dashboard/users",
+    icon: <Users size={20} />,
+  },
+  {
+    name: "Batches",
+    path: "/dashboard/batches",
+    icon: <BookOpen size={20} />,
+  },
+  {
+    name: "Groups",
+    path: "/dashboard/groups",
+    icon: <Layers size={20} />,
+  },
+  {
+    name: "Activity",
+    path: "/dashboard/activity",
+    icon: <Activity size={20} />,
+  },
+  {
+    name: "Chat Monitor",
+    path: "/dashboard/chat",
+    icon: <MessageSquare size={20} />,
+  },
+];
+
+const managerItems = [
+  {
+    name: "Dashboard",
+    path: "/dashboard/analytics",
+    icon: <LayoutDashboard size={20} />,
+  },
+  {
+    name: "My Group",
+    path: "/dashboard/groups",
+    icon: <Layers size={20} />,
+  },
+  {
+    name: "Activity",
+    path: "/dashboard/activity",
+    icon: <Activity size={20} />,
+  },
+  {
+    name: "Group Chat",
+    path: "/dashboard/chat",
+    icon: <MessageSquare size={20} />,
+  },
+];
+
+const studentItems = [
+  {
+    name: "Dashboard",
+    path: "/dashboard/analytics",
+    icon: <LayoutDashboard size={20} />,
+  },
+  {
+    name: "My Activity",
+    path: "/dashboard/activity",
+    icon: <Activity size={20} />,
+  },
+  {
+    name: "Group Chat",
+    path: "/dashboard/chat",
+    icon: <MessageSquare size={20} />,
+  },
+];
+
+const { user } = useAuth();
+const role = user?.role?.toUpperCase();
+
+const navItems =
+  role === "ADMIN"
+    ? adminItems
+    : role === "MANAGER"
+    ? managerItems
+    : studentItems;
 
   return (
     <div className="w-64 bg-white border-r border-slate-100 flex flex-col justify-between h-full shrink-0">

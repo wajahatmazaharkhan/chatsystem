@@ -47,7 +47,7 @@ export default function BatchTable({ batches }) {
                             <td className="text-center">
                                 <button
                                     onClick={() =>
-                                        navigate(`/batches/${batch._id}`)
+                                        navigate(`/dashboard/batches/${batch._id}`)
                                     }
                                     className="text-blue-700 font-semibold"
                                 >

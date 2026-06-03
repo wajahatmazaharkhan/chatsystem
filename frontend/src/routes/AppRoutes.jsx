@@ -1,8 +1,4 @@
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-} from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import DashboardLayout from "../components/layout/DashboardLayout";
 import ProtectedRoute from "../components/ProtectedRoute";
@@ -25,15 +21,17 @@ import UserActivityLogs from "../pages/Activity/UserActivityLogs";
 
 function DashboardResolver() {
   const { user } = useAuth();
-  const role = user?.role?.toUpperCase();
 
-  if (role === "MANAGER") {
-    return <ManagerDashboard />;
+  switch (user?.role?.toUpperCase()) {
+    case "MANAGER":
+      return <ManagerDashboard />;
+
+    case "STUDENT":
+      return <StudentDashboard />;
+
+    default:
+      return <AdminDashboard />;
   }
-  if (role === "STUDENT") {
-    return <StudentDashboard />;
-  }
-  return <AdminDashboard />;
 }
 
 import GroupChatDashboard from "../pages/GroupChatDashboard";
@@ -42,26 +40,10 @@ export default function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-
         {/* Login Route */}
-        <Route
-          path="/"
-          element={<Login />}
-        />
+        <Route path="/" element={<Login />} />
 
-        <Route
-          path="/login"
-          element={<Login />}
-        />
-
-        <Route
-          path="/student/dashboard"
-          element={
-            <ProtectedRoute allowedRoles={["STUDENT"]}>
-              <StudentDashboard />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/login" element={<Login />} />
 
         {/* Dashboard Routes */}
         <Route
@@ -72,10 +54,7 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         >
-          <Route
-            path="/dashboard/analytics"
-            element={<DashboardResolver />}
-          />
+          <Route path="/dashboard/analytics" element={<DashboardResolver />} />
 
           <Route
             path="/dashboard/users"
@@ -134,7 +113,7 @@ export default function AppRoutes() {
           <Route
             path="/dashboard/activity"
             element={
-              <ProtectedRoute allowedRoles={["ADMIN", "MANAGER", "STUDENT"]}>
+              <ProtectedRoute allowedRoles={["ADMIN"]}>
                 <ActivityUsers />
               </ProtectedRoute>
             }
@@ -143,7 +122,7 @@ export default function AppRoutes() {
           <Route
             path="/dashboard/activity/:userId"
             element={
-              <ProtectedRoute allowedRoles={["ADMIN", "MANAGER", "STUDENT"]}>
+              <ProtectedRoute allowedRoles={["ADMIN"]}>
                 <UserActivityLogs />
               </ProtectedRoute>
             }

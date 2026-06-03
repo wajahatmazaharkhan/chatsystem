@@ -57,11 +57,6 @@ const roleNavItems = {
       icon: <Layers size={20} />,
     },
     {
-      name: "Activity",
-      path: "/dashboard/activity",
-      icon: <Activity size={20} />,
-    },
-    {
       name: "Chat",
       path: "/dashboard/chat",
       icon: <MessageSquare size={20} />,
@@ -72,11 +67,6 @@ const roleNavItems = {
       name: "Analytics",
       path: "/dashboard/analytics",
       icon: <LayoutDashboard size={20} />,
-    },
-    {
-      name: "Activity",
-      path: "/dashboard/activity",
-      icon: <Activity size={20} />,
     },
     {
       name: "Chat",

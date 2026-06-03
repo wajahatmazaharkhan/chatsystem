@@ -8,7 +8,7 @@ let io;
 const initSocket = (server) => {
     io = new Server(server, {
         cors: {
-            origin: "*", // Adjust this to match your specific React App URL if needed
+            origin: "http://localhost:5173", // Adjust this to match your specific React App URL if needed
             methods: ["GET", "POST"]
         }
     });
@@ -43,11 +43,16 @@ const initSocket = (server) => {
                 }
 
                 const isMember = group.members.some(
-                    (id) => id.toString() === socket.user.user_id
+                  (id) => id.toString() === socket.user.user_id,
                 );
 
-                if (!isMember) {
-                    return socket.emit("error_message", "Not allowed to join this group");
+                const isAdmin = socket.user.role === "ADMIN";
+
+                if (!isMember && !isAdmin) {
+                  return socket.emit(
+                    "error_message",
+                    "Not allowed to join this group",
+                  );
                 }
 
                 socket.join(groupId.toString());
@@ -67,7 +72,7 @@ const initSocket = (server) => {
             socket.to(groupId.toString()).emit('message_received', {
                 groupId,
                 id: Date.now(),
-                sender: socket.user.userId,
+                sender: socket.user.name || "Unknown",
                 text,
                 time,
                 isMe: false // It will evaluate as a remote user message for other recipients

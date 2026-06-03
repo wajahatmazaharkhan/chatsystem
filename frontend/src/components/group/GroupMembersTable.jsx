@@ -35,7 +35,7 @@ export default function GroupMembersTable({ groups }) {
               <td className="text-center">
                 <button
                   onClick={() =>
-                    navigate(`/groups/${group._id}`)
+                    navigate(`/dashboard/groups/${group._id}`)
                   }
                   className="text-blue-700 font-semibold"
                 >

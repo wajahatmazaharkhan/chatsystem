@@ -1,12 +1,18 @@
 import { useState, useEffect } from "react";
 
-import { getAllGroups } from "../services/groupService";
+import { getAllGroups, getMyGroup } from "../services/groupService";
 
 import Loader from "../components/ui/Loader";
 
 import GroupMembersTable from "../components/group/GroupMembersTable";
 
 export default function GroupList() {
+  const user = JSON.parse(
+  localStorage.getItem("user")
+);
+
+const role = user?.role?.toUpperCase();
+
   const [groups, setGroups] = useState([]);
 
   const [loading, setLoading] = useState(true);
@@ -16,16 +22,28 @@ export default function GroupList() {
   }, []);
 
   async function fetchGroups() {
-    try {
+  try {
+
+    if (role === "ADMIN") {
+
       const res = await getAllGroups();
 
       setGroups(res.data.groups);
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setLoading(false);
+
+    } else if (role === "MANAGER") {
+
+      const res = await getMyGroup();
+
+      setGroups([res.data]); 
+
     }
+
+  } catch (err) {
+    console.log(err);
+  } finally {
+    setLoading(false);
   }
+}
 
   if (loading) {
     return <Loader />;

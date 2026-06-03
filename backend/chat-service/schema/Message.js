@@ -12,6 +12,11 @@ const MessageSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
+    sender_name: {
+      type: String,
+      required: false,
+      trim: true,
+    },
     content: {
       type: String,
       required: true,

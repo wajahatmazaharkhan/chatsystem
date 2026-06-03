@@ -29,7 +29,7 @@ const validateAuth = async (req, res, next) => {
 
         req.user = {
             user_id:user.user_id,
-
+            name: user.name,
             role: user.role
         }
 

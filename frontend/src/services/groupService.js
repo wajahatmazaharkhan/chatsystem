@@ -6,6 +6,10 @@ export const getAllGroups=()=>{
 
 };
 
+export const getMyGroup = () => {
+  return api.get("/groups/my-group");
+};
+
 
 export const getGroupById=(groupId)=>{
 

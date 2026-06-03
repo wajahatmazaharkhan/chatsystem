@@ -9,6 +9,6 @@ const { authenticate, requireRole } = require('../middleware/auth.middleware');
 router.post('/log', authenticate, logActivity)
 
 // get /v1/activity/user/:id
-router.get('/user/:id', authenticate, requireRole('ADMIN'), getuserActivity)
+router.get('/user/:id', authenticate, requireRole('ADMIN','MANAGER', 'STUDENT'), getuserActivity)
 
 module.exports = router;

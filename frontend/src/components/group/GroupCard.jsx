@@ -20,7 +20,7 @@ export default function GroupCard({ group }) {
 
             <button
                 onClick={() =>
-                    navigate(`/groups/${group._id}`)
+                    navigate(`/dashboard/groups/${group._id}`)
                 }
                 className="mt-4 text-blue-700 font-semibold"
             >

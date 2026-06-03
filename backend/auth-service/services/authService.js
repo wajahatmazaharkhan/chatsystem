@@ -25,6 +25,7 @@ class AuthService {
       const token = jwt.sign(
         {
           user_id: user._id.toString(),
+          name: user.name,
           email: user.email,
           role: user.role,
           is_active: user.is_active,
@@ -62,6 +63,7 @@ class AuthService {
           user_id: user._id.toString(),
           email: user.email,
           role: user.role,
+          name: user.name,
           is_active: user.is_active,
         },
       };
@@ -113,6 +115,7 @@ class AuthService {
         valid: true,
         user_id: decoded.user_id,
         email: decoded.email,
+        name: decoded.name,
         role: decoded.role,
       };
     } catch (error) {

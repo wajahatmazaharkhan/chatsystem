@@ -17,7 +17,7 @@ const send = async (req, res, next) => {
     }
 
     try {
-        const message = await sendMessage(group_id, user_id, content);
+        const message = await sendMessage(group_id, user_id, req.user.name, content);
 
         // Emit via Socket.io
         try {

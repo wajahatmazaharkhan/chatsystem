@@ -2,6 +2,7 @@ const axios = require('axios');
 
 const checkGroupAccess = async (req, res, next) => {
   const groupId = req.params.group_id || req.body.group_id;
+
   const { user_id, role } = req.user;
 
   if (!groupId) {
@@ -17,7 +18,7 @@ const checkGroupAccess = async (req, res, next) => {
 
   try {
     const response = await axios.get(
-      `${process.env.GROUP_SERVICE_URL}/groups/${groupId}/members/validate`,
+      `${process.env.GROUP_SERVICE_URL}/v1/groups/${groupId}/members/validate`,
       {
         params: {
           user_id

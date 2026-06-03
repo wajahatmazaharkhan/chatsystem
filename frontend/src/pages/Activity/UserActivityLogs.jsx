@@ -22,6 +22,9 @@ const UserActivityLogs = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
 
+  const user = JSON.parse(localStorage.getItem("user"));
+  const activityUserId = userId || user?.user_id;
+
   const [activities, setActivities] = useState([]);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -29,7 +32,7 @@ const UserActivityLogs = () => {
   useEffect(() => {
     async function loadActivities() {
       try {
-        const data = await getUserActivity(userId);
+        const data = await getUserActivity(activityUserId);
 
         setActivities(data.data || data);
       } catch (error) {

@@ -4,11 +4,12 @@ const Message = require('../../schema/Message');
  * Saves a new message to the database.
  * @param {string} group_id
  * @param {string} sender_id
+ * @param {string} sender_name
  * @param {string} content
  * @returns {Promise<Message>}
  */
-const sendMessage = async (group_id, sender_id, content) => {
-    const message = new Message({ group_id, sender_id, content });
+const sendMessage = async (group_id, sender_id, sender_name, content) => {
+    const message = new Message({ group_id, sender_id, sender_name, content });
     await message.save();
     return message;
 };
@@ -20,7 +21,7 @@ const sendMessage = async (group_id, sender_id, content) => {
  */
 const getGroupHistory = async (group_id) => {
     return await Message.find({ group_id })
-        .sort({ sent_at: -1 })
+        .sort({ sent_at: 1 })
         .limit(50);
 };
 
