@@ -145,7 +145,7 @@ exports.getGroupStatus = async (group_id, authHeader) => {
   let group = null;
   try {
     const GROUP_SERVICE = process.env.GROUP_SERVICE || 'http://localhost:5003/v1';
-    const res = await axios.get(`${GROUP_SERVICE}/groups/${group_id}`, {
+    const res = await axios.get(`${GROUP_SERVICE}/v1/groups/${group_id}`, {
       headers: { Authorization: authHeader }
     });
     group = res.data;

@@ -156,9 +156,8 @@ exports.listUsers = async function listUsers(req, res, next) {
     const normalizedStatus = validateEnum(status, ALLOWED_STATUSES, 'status');
 
     if (normalizedRole) q.role = normalizedRole;
-    if (typeof is_active !== 'undefined') {
-      // accept query strings 'true'/'false' or boolean
-      q.is_active = is_active === 'true' || is_active === true;
+    if (typeof is_active !== "undefined" && is_active !== "") {
+      q.is_active = is_active === "true" || is_active === true;
     }
     if (normalizedStatus) {
       const matchingStatuses = await UserStatus.find({ status: normalizedStatus }).select('user_id').lean();

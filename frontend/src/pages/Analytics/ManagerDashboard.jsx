@@ -21,7 +21,6 @@ export default function ManagerDashboard() {
     <div className="manager-dashboard">
       <div className="manager-header">
         <div>
-          <h1>Manager Dashboard</h1>
           <p>Monitor group engagement and activity</p>
         </div>
         <button className="manager-badge">MANAGER</button>
