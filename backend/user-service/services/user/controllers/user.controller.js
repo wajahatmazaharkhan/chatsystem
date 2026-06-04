@@ -28,7 +28,10 @@ async function getStatusMap(userIds) {
   const statuses = await UserStatus.find({ user_id: { $in: userIds } }).lean();
 
   return statuses.reduce((map, item) => {
-    map[item.user_id.toString()] = item.status;
+    map[item.user_id.toString()] = {
+      status: item.status,
+      last_active_at: item.last_active_at
+    };
     return map;
   }, {});
 }
@@ -40,7 +43,11 @@ function sanitizeUser(doc, statusMap = {}) {
   const obj = doc.toObject ? doc.toObject() : { ...doc };
   const userId = obj._id ? obj._id.toString() : obj.user_id;
 
-  obj.status = statusMap[userId] || (obj.is_active === false ? 'INACTIVE' : 'ACTIVE');
+  const statusInfo = statusMap[userId] || {};
+  obj.status = statusInfo.status || (obj.is_active === false ? 'INACTIVE' : 'ACTIVE');
+  if (statusInfo.last_active_at) {
+    obj.last_login = statusInfo.last_active_at;
+  }
 
   // Map MongoDB `_id` to public `user_id` and remove internal fields
   obj.user_id = userId;
@@ -52,6 +59,7 @@ function sanitizeUser(doc, statusMap = {}) {
   if (obj.created_at instanceof Date) obj.created_at = obj.created_at.toISOString();
   if (obj.updated_at instanceof Date) obj.updated_at = obj.updated_at.toISOString();
   if (obj.deleted_at instanceof Date) obj.deleted_at = obj.deleted_at.toISOString();
+  if (obj.last_login instanceof Date) obj.last_login = obj.last_login.toISOString();
   return obj;
 }
 

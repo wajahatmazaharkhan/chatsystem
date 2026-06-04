@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const getRoleColor = (role) => {
   switch (role) {
@@ -19,6 +19,23 @@ const getStatusColor = (status) => {
 };
 
 export default function UserManagementTable({ users = [], loading = false }) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState('All roles');
+  const [statusFilter, setStatusFilter] = useState('All status');
+
+  const filteredUsers = users.filter((u) => {
+    const matchesSearch = 
+      (u.name && u.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (u.email && u.email.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesRole = roleFilter === 'All roles' || u.role === roleFilter || (roleFilter === 'Admin' && u.role === 'ADMIN') || (roleFilter === 'Manager' && u.role === 'MANAGER') || (roleFilter === 'Student' && u.role === 'STUDENT');
+    
+    const uStatusStr = u.status ? (u.status === 'ACTIVE' ? 'Active' : 'Inactive') : (u.is_active ? 'Active' : 'Inactive');
+    const matchesStatus = statusFilter === 'All status' || uStatusStr === statusFilter;
+    
+    return matchesSearch && matchesRole && matchesStatus;
+  });
+
   return (
     <div className="bg-[#242528] rounded-xl border border-gray-700/50 p-6">
       <div className="flex justify-between items-center mb-6">
@@ -26,15 +43,25 @@ export default function UserManagementTable({ users = [], loading = false }) {
           type="text" 
           placeholder="Search by name or email..." 
           className="bg-[#1a1a1c] border border-gray-700 rounded-md px-4 py-2 text-sm text-gray-200 placeholder-gray-500 w-64 focus:outline-none focus:border-gray-500"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
         <div className="flex space-x-3">
-          <select className="bg-[#1a1a1c] border border-gray-700 rounded-md px-3 py-2 text-sm text-gray-200 focus:outline-none">
+          <select 
+            className="bg-[#1a1a1c] border border-gray-700 rounded-md px-3 py-2 text-sm text-gray-200 focus:outline-none"
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}
+          >
             <option>All roles</option>
             <option>Admin</option>
             <option>Manager</option>
             <option>Student</option>
           </select>
-          <select className="bg-[#1a1a1c] border border-gray-700 rounded-md px-3 py-2 text-sm text-gray-200 focus:outline-none">
+          <select 
+            className="bg-[#1a1a1c] border border-gray-700 rounded-md px-3 py-2 text-sm text-gray-200 focus:outline-none"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
             <option>All status</option>
             <option>Active</option>
             <option>Inactive</option>
@@ -62,11 +89,11 @@ export default function UserManagementTable({ users = [], loading = false }) {
           <tbody className="text-sm">
             {loading ? (
               <tr><td colSpan="7" className="py-4 text-center text-gray-500">Loading users...</td></tr>
-            ) : users.length === 0 ? (
+            ) : filteredUsers.length === 0 ? (
               <tr><td colSpan="7" className="py-4 text-center text-gray-500">No users found.</td></tr>
-) : users.map((u, index) => {
+) : filteredUsers.map((u, index) => {
               const initials = u.name ? u.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'U';
-              const status = u.is_active ? 'Active' : 'Inactive';
+              const statusStr = u.status ? (u.status === 'ACTIVE' ? 'Active' : 'Inactive') : (u.is_active ? 'Active' : 'Inactive');
               return (
               <tr key={u.user_id || u._id || u.id || index} className="border-b border-gray-700/30 hover:bg-[#2a2b2f] transition-colors">
                 <td className="py-3 px-4 flex items-center space-x-3">
@@ -82,10 +109,12 @@ export default function UserManagementTable({ users = [], loading = false }) {
                   </span>
                 </td>
                 <td className="py-3 px-4 text-gray-400">{u.batch || '—'}</td>
-                <td className="py-3 px-4 text-gray-400">{u.lastLogin || 'Never'}</td>
+                <td className="py-3 px-4 text-gray-400">
+                  {u.last_login ? new Date(u.last_login).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : 'Never'}
+                </td>
                 <td className="py-3 px-4">
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusColor(status)}`}>
-                    {status}
+                  <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusColor(statusStr)}`}>
+                    {statusStr}
                   </span>
                 </td>
                 <td className="py-3 px-4 text-right">
