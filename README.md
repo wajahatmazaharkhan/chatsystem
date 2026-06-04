@@ -46,3 +46,39 @@ npm run dev:all
 
 You will see color-coded logs indicating the status of each service. 
 The system will now be accessible via the API Gateway at `http://localhost:5000`.
+
+---
+## Frontend Setup
+
+### Install Dependencies
+
+```bash
+cd frontend
+npm install
+```
+
+### Environment Variables
+
+Create a `.env` file inside the `frontend` directory.
+
+Example:
+
+```env
+VITE_BE_URL=http://localhost:5000
+```
+
+Adjust the URL if your API Gateway is running on a different port.
+
+### Run Frontend
+
+```bash
+npm run dev
+```
+
+The frontend will be available at:
+
+```txt
+http://localhost:5173
+```
+
+---
