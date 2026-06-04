@@ -24,7 +24,6 @@ export default function StudentDashboard() {
       {/* Header */}
       <div className="student-header">
         <div>
-          <h1>Student Dashboard</h1>
           <p>Track your participation and engagement</p>
         </div>
         <button className="student-badge">ACTIVE</button>

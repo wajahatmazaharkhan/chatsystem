@@ -32,9 +32,9 @@ const loginUser = async () => {
     if (role === "ADMIN") {
       navigate("/dashboard/analytics");
     } else if (role === "MANAGER") {
-      navigate("/dashboard/groups");
+      navigate("/dashboard/analytics");
     } else if (role === "STUDENT") {
-      navigate("/dashboard/chat");
+      navigate("/dashboard/analytics");
     } else {
       navigate("/");
     }
@@ -56,9 +56,9 @@ useEffect(() => {
     if (user.role === "ADMIN") {
       navigate("/dashboard/analytics");
     } else if (user.role === "MANAGER") {
-      navigate("/dashboard/groups");
+      navigate("/dashboard/analytics");
     } else if (user.role === "STUDENT") {
-      navigate("/dashboard/chat");
+      navigate("/dashboard/analytics");
     }
   }
 }, []);
