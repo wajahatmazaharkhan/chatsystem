@@ -1,65 +1,97 @@
 
-import React, { useEffect, useState } from "react";
-import StatCards from "../../components/StatCards";
-import UserManagementTable from "../../components/UserManagementTable";
-import { fetchAdminStats, fetchUsers } from "../../services/analyticsService";
 
-export default function StudentDashboard({ user }) {
-  const [stats, setStats] = useState({
-    total: 0,
-    students: 0,
-    managers: 0,
-    admins: 0,
-  });
 
-  const [users, setUsers] = useState([]);
+import React, { useEffect, useState } from 'react';
+import './StudentDashboard.css';
+import { fetchStudentStats } from '../../services/analyticsService';
+
+export default function StudentDashboard() {
+  const [stats, setStats] = useState([]);
+  const [weeklyActivity, setWeeklyActivity] = useState([]);
+  const [achievements, setAchievements] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([fetchAdminStats(), fetchUsers()])
-      .then(([statsData, usersData]) => {
-        setStats({
-          total: statsData.total_users || 0,
-          students: statsData.students_count || 0,
-          managers: statsData.managers_count || 0,
-          admins: statsData.admins_count || 0,
-        });
-
-        setUsers(usersData.items || []);
+    fetchStudentStats()
+      .then((data) => {
+        setStats(data.stats || []);
+        setWeeklyActivity(data.weeklyActivity || []);
+        setAchievements(data.achievements || []);
       })
-      .catch((err) => console.error("Failed to load student dashboard", err))
       .finally(() => setLoading(false));
   }, []);
 
   return (
-    <div className="min-h-screen px-8 py-6 text-white bg-slate-950">
+    <div className="student-dashboard">
 
       {/* HEADER */}
-      <div className="flex justify-between items-start mb-8">
+      <div className="student-header">
         <div>
-          <h1 className="text-3xl font-bold">
-            Student Analytics
-          </h1>
-
-          <p className="text-slate-400 mt-1 text-sm">
-            Welcome back, {user?.name || "Student"} 👋
-          </p>
+          <h1>Student Dashboard</h1>
+          <p>Track your participation and engagement</p>
         </div>
-
-        <div className="px-4 py-2 rounded-full text-xs font-bold tracking-widest
-          bg-blue-500/10 text-blue-300 border border-blue-500/20">
-          ACTIVE LEARNER
-        </div>
+        <button className="student-badge">ACTIVE</button>
       </div>
 
       {/* STATS */}
-      <div className="mb-6">
-        <StatCards stats={stats} />
+      <div className="student-stats">
+        {loading
+          ? Array(4).fill(0).map((_, i) => (
+              <div className="student-stat-card" key={i}>
+                <div className="student-stat-title">Loading</div>
+                <div className="student-stat-value">...</div>
+                <div className="student-stat-sub">...</div>
+              </div>
+            ))
+          : stats.map((item, idx) => (
+              <div className="student-stat-card" key={idx}>
+                <div className="student-stat-title">{item.title}</div>
+                <div className="student-stat-value">{item.value}</div>
+                <div className="student-stat-sub">{item.sub}</div>
+              </div>
+            ))}
       </div>
 
-      {/* TABLE SECTION */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-        <UserManagementTable users={users} loading={loading} />
+      {/* MAIN GRID */}
+      <div className="student-grid">
+
+        {/* ACTIVITY */}
+        <div className="student-panel">
+          <div className="panel-title">Weekly Activity</div>
+
+          <div className="activity-chart">
+            {loading
+              ? 'Loading chart...'
+              : weeklyActivity.map((d, idx) => (
+                  <div className="chart-item" key={idx}>
+                    <div className="chart-bar-wrap">
+                      <div
+                        className="chart-bar"
+                        style={{ height: `${d.value}%` }}
+                      />
+                    </div>
+                    <span className="chart-day">{d.day}</span>
+                  </div>
+                ))}
+          </div>
+        </div>
+
+        {/* ACHIEVEMENTS (FIXED) */}
+        <div className="student-panel">
+          <div className="panel-title">Achievements</div>
+
+          <div className="achievement-list">
+            {loading
+              ? 'Loading...'
+              : achievements.map((a, idx) => (
+                  <div className="achievement-item" key={idx}>
+                    <div className="achievement-dot" />
+                    <div>{a}</div>
+                  </div>
+                ))}
+          </div>
+        </div>
+
       </div>
 
     </div>
