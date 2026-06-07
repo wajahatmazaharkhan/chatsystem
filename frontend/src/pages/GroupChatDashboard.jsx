@@ -406,7 +406,7 @@ const currentMessages =
           msg.sender_id ===
           user.user_id,
       },
-    ],
+    ],  
   }));
 });
 

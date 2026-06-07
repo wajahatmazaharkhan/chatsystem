@@ -34,7 +34,7 @@ const role = user?.role?.toUpperCase();
 
       const res = await getMyGroup();
 
-      setGroups([res.data]); 
+      setGroups(res.data); 
 
     }
 

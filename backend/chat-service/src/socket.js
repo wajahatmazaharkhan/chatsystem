@@ -48,7 +48,11 @@ const initSocket = (server) => {
 
                 const isAdmin = socket.user.role === "ADMIN";
 
-                if (!isMember && !isAdmin) {
+                const isManager =
+                  group.manager_id &&
+                  group.manager_id.toString() === socket.user.user_id;
+
+                if (!isMember && !isAdmin && !isManager) {
                   return socket.emit(
                     "error_message",
                     "Not allowed to join this group",

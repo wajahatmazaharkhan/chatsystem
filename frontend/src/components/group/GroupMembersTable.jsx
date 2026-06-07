@@ -53,6 +53,7 @@
 import { useNavigate } from "react-router-dom";
 
 export default function GroupMembersTable({ groups }) {
+  console.log("Received groups in GroupMembersTable:", groups);
   const navigate = useNavigate();
 
   return (

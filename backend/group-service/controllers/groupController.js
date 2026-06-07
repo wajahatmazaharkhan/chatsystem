@@ -284,21 +284,28 @@ const validateMembership = async (req, res) => {
 
 const getMyGroup = async (req, res) => {
   try {
-    const group = await Group.find({
-      members: req.user.user_id
-    });
+    let groups;
 
-    if (!group || group.length === 0) {
-      return res.status(404).json({
-        error: 'Group not found'
+    if (req.user.role === "MANAGER") {
+      groups = await Group.find({
+        manager_id: req.user.user_id,
+      });
+    } else {
+      groups = await Group.find({
+        members: req.user.user_id,
       });
     }
 
-    res.status(200).json(group);
+    if (!groups || groups.length === 0) {
+      return res.status(404).json({
+        error: "Group not found",
+      });
+    }
 
+    res.status(200).json(groups);
   } catch (err) {
     res.status(500).json({
-      error: 'Internal server error'
+      error: "Internal server error",
     });
   }
 };
