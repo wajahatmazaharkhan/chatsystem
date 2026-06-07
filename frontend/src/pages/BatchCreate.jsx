@@ -56,6 +56,9 @@ useEffect(() => {
     setSuccessMsg("");
     setErrorMsg("");
 
+  console.log("NAME =", name);
+  console.log("TRIMMED =", name.trim());
+  console.log("STUDENTS =", studentIds);
     try {
       await createBatch({
         name: name.trim(),
@@ -92,12 +95,21 @@ useEffect(() => {
       )}
 
       {/* Batch name */}
-      <input
+      {/* <input
         placeholder="Batch Name"
         className="border w-full p-4 rounded"
         value={name}
         onChange={(e) => setName(e.target.value)}
-      />
+      /> */}
+      <input
+  placeholder="Batch Name"
+  className="border w-full p-4 rounded"
+  value={name}
+  onChange={(e) => {
+    console.log("INPUT =", e.target.value);
+    setName(e.target.value);
+  }}
+/>
 
       {/* Students */}
       <div className="mt-6">

@@ -1,7 +1,11 @@
 const axios = require('axios');
 
 const authenticate = async (req, res, next) => {
-  const authHeader = req.headers.authorization;
+  console.log(
+  "AUTH_VALIDATE_URL =",
+  process.env.AUTH_VALIDATE_URL
+);
+const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Authorization token missing' });
@@ -28,9 +32,17 @@ const authenticate = async (req, res, next) => {
 
     req.user = response.data; // { user_id, role }
     next();
-  } catch (err) {
-    return res.status(401).json({ error: 'Invalid or expired token' });
-  }
+  }catch (err) {
+  console.log(
+    "AUTH VALIDATION ERROR:",
+    err.response?.status,
+    err.response?.data
+  );
+
+  return res.status(401).json({
+    error: "Invalid or expired token",
+  });
+}
 };
 
 module.exports = authenticate;

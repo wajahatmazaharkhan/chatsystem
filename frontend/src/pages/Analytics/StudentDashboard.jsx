@@ -1,72 +1,67 @@
 
-import React, { useEffect, useState } from 'react';
-import './StudentDashboard.css';
-import { fetchStudentStats } from '../../services/analyticsService';
+import React, { useEffect, useState } from "react";
+import StatCards from "../../components/StatCards";
+import UserManagementTable from "../../components/UserManagementTable";
+import { fetchAdminStats, fetchUsers } from "../../services/analyticsService";
 
-export default function StudentDashboard() {
-  const [stats, setStats] = useState([]);
-  const [weeklyActivity, setWeeklyActivity] = useState([]);
-  const [achievements, setAchievements] = useState([]);
+export default function StudentDashboard({ user }) {
+  const [stats, setStats] = useState({
+    total: 0,
+    students: 0,
+    managers: 0,
+    admins: 0,
+  });
+
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchStudentStats()
-      .then((data) => {
-        setStats(data.stats || []);
-        setWeeklyActivity(data.weeklyActivity || []);
-        setAchievements(data.achievements || []);
+    Promise.all([fetchAdminStats(), fetchUsers()])
+      .then(([statsData, usersData]) => {
+        setStats({
+          total: statsData.total_users || 0,
+          students: statsData.students_count || 0,
+          managers: statsData.managers_count || 0,
+          admins: statsData.admins_count || 0,
+        });
+
+        setUsers(usersData.items || []);
       })
+      .catch((err) => console.error("Failed to load student dashboard", err))
       .finally(() => setLoading(false));
   }, []);
 
   return (
-    <div className="student-dashboard">
-      {/* Header */}
-      <div className="student-header">
+    <div className="min-h-screen px-8 py-6 text-white bg-slate-950">
+
+      {/* HEADER */}
+      <div className="flex justify-between items-start mb-8">
         <div>
-          <p>Track your participation and engagement</p>
+          <h1 className="text-3xl font-bold">
+            Student Analytics
+          </h1>
+
+          <p className="text-slate-400 mt-1 text-sm">
+            Welcome back, {user?.name || "Student"} 👋
+          </p>
         </div>
-        <button className="student-badge">ACTIVE</button>
+
+        <div className="px-4 py-2 rounded-full text-xs font-bold tracking-widest
+          bg-blue-500/10 text-blue-300 border border-blue-500/20">
+          ACTIVE LEARNER
+        </div>
       </div>
 
-      {/* Stats */}
-      <div className="student-stats">
-        {loading ? 'Loading...' : stats.map((item, idx) => (
-          <div className="student-stat-card" key={idx}>
-            <div className="student-stat-title">{item.title}</div>
-            <div className="student-stat-value">{item.value}</div>
-            <div className="student-stat-sub">{item.sub}</div>
-          </div>
-        ))}
+      {/* STATS */}
+      <div className="mb-6">
+        <StatCards stats={stats} />
       </div>
 
-      {/* Main Grid */}
-      <div className="student-grid">
-        {/* Weekly Activity */}
-        <div className="student-panel">
-          <div className="panel-title">Weekly Activity</div>
-          <div className="activity-chart">
-            {loading ? 'Loading...' : weeklyActivity.map((d, idx) => (
-              <div className="chart-item" key={idx}>
-                <div className="chart-bar-wrap">
-                  <div className="chart-bar" style={{ height: `${d.value}%` }} />
-                </div>
-                <span className="chart-day">{d.day}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        {/* Achievements */}
-        <div className="student-panel">
-          <div className="panel-title">Achievements</div>
-          <ul className="achievements-list">
-            {loading ? <li>Loading...</li> : achievements.map((a, idx) => (
-              <li key={idx}>{a}</li>
-            ))}
-          </ul>
-        </div>
+      {/* TABLE SECTION */}
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+        <UserManagementTable users={users} loading={loading} />
       </div>
+
     </div>
   );
 }
-

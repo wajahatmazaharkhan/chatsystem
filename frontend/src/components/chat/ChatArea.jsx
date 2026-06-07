@@ -41,8 +41,11 @@ export default function ChatArea({ messages, onSendMessage, readOnly }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!text.trim() || readOnly) return;
-    onSendMessage(text.trim());
-    setText('');
+    // onSendMessage(text.trim());
+    if (onSendMessage) {
+  onSendMessage(text.trim());
+}
+setText('');
   };
 
   const handleKeyDown = (e) => {
