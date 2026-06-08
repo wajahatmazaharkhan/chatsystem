@@ -7,6 +7,16 @@ const BatchSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    limit: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 300,
+    },
+    enrolled_count: {
+      type: Number,
+      default: 0,
+    },
     student_ids: {
       type: [String],
       default: [],

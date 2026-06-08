@@ -34,7 +34,7 @@ router.use('/users', authMiddleware, usersProxy);
 // ==========================================
 // Module 3: Groups & Batches
 // ==========================================
-router.use('/batches', authMiddleware, rbacMiddleware(['ADMIN', 'MANAGER']), batchesProxy);
+router.use('/batches', authMiddleware, rbacMiddleware(['ADMIN', 'MANAGER', 'STUDENT']), batchesProxy);
 router.use('/groups', authMiddleware, groupsProxy);
 
 // ==========================================
