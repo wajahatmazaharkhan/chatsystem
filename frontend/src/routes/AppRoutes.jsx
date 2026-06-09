@@ -9,6 +9,7 @@ import Login from "../pages/auth/Login";
 import BatchCreate from "../pages/BatchCreate";
 import BatchList from "../pages/BatchList";
 import BatchDetails from "../pages/BatchDetails";
+import StudentBatches from "../pages/Analytics/StudentBatches";
 
 import GroupList from "../pages/GroupList";
 import GroupDetails from "../pages/GroupDetails";
@@ -88,6 +89,15 @@ export default function AppRoutes() {
             element={
               <ProtectedRoute allowedRoles={["ADMIN"]}>
                 <BatchDetails />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/dashboard/student-batches"
+            element={
+              <ProtectedRoute allowedRoles={["STUDENT"]}>
+                <StudentBatches />
               </ProtectedRoute>
             }
           />

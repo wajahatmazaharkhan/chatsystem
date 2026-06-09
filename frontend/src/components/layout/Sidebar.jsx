@@ -69,6 +69,11 @@ const roleNavItems = {
       icon: <LayoutDashboard size={20} />,
     },
     {
+      name: "Batches",
+      path: "/dashboard/student-batches",
+      icon: <BookOpen size={20} />,
+    },
+    {
       name: "Chat",
       path: "/dashboard/chat",
       icon: <MessageSquare size={20} />,
