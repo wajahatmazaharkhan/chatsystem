@@ -4,22 +4,48 @@
 import React, { useEffect, useState } from 'react';
 import './StudentDashboard.css';
 import { fetchStudentStats } from '../../services/analyticsService';
+import { getEnrolledBatches } from '../../services/batchService';
+import BatchSelection from '../../components/batch/BatchSelection';
 
 export default function StudentDashboard() {
   const [stats, setStats] = useState([]);
   const [weeklyActivity, setWeeklyActivity] = useState([]);
   const [achievements, setAchievements] = useState([]);
+  const [enrolledBatches, setEnrolledBatches] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const loadDashboardData = async () => {
+    try {
+      setLoading(true);
+      const batchesRes = await getEnrolledBatches();
+      setEnrolledBatches(batchesRes.data || []);
+      
+      const statsData = await fetchStudentStats();
+      setStats(statsData.stats || []);
+      setWeeklyActivity(statsData.weeklyActivity || []);
+      setAchievements(statsData.achievements || []);
+    } catch (error) {
+      console.error("Failed to load dashboard data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    fetchStudentStats()
-      .then((data) => {
-        setStats(data.stats || []);
-        setWeeklyActivity(data.weeklyActivity || []);
-        setAchievements(data.achievements || []);
-      })
-      .finally(() => setLoading(false));
+    loadDashboardData();
   }, []);
+
+  if (loading) {
+    return <div className="flex justify-center items-center h-screen text-gray-300">Loading dashboard...</div>;
+  }
+
+  if (enrolledBatches.length === 0) {
+    return (
+      <div className="p-8">
+        <BatchSelection onEnrolled={loadDashboardData} />
+      </div>
+    );
+  }
 
   return (
     <div className="student-dashboard">

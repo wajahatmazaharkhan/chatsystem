@@ -42,12 +42,10 @@ export default function BatchDetails() {
 
             <div className="grid grid-cols-3 gap-6 my-8">
                 <div className="bg-slate-700 p-6 rounded-xl">
-                    <p>Students</p>
+                    <p>Students (Enrolled / Limit)</p>
 
                     <h2 className="text-3xl font-bold">
-                        {
-                            data.groups.reduce((total, group) => total + group.members.length, 0)
-                        }
+                        {data.batch.enrolled_count} / {data.batch.limit}
                     </h2>
                 </div>
 

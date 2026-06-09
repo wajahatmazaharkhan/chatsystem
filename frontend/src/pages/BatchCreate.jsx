@@ -6,6 +6,7 @@ import { getUsers } from "../services/userService";
 
 export default function BatchCreate() {
   const [name, setName] = useState("");
+  const [limit, setLimit] = useState("");
   const [studentIds, setStudentIds] = useState([]);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
@@ -56,17 +57,21 @@ useEffect(() => {
     setSuccessMsg("");
     setErrorMsg("");
 
-  console.log("NAME =", name);
-  console.log("TRIMMED =", name.trim());
-  console.log("STUDENTS =", studentIds);
+    if (!name.trim() || !limit || Number(limit) <= 0) {
+      setErrorMsg("Please provide a valid batch name and limit.");
+      setLoading(false);
+      return;
+    }
     try {
       await createBatch({
         name: name.trim(),
+        limit: Number(limit),
         student_ids: studentIds,
       });
 
       setSuccessMsg("Batch created successfully");
       setName("");
+      setLimit("");
       setStudentIds([]);
     } catch (err) {
       
@@ -94,22 +99,25 @@ useEffect(() => {
         </div>
       )}
 
-      {/* Batch name */}
-      {/* <input
-        placeholder="Batch Name"
-        className="border w-full p-4 rounded"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      /> */}
       <input
-  placeholder="Batch Name"
-  className="border w-full p-4 rounded"
-  value={name}
-  onChange={(e) => {
-    console.log("INPUT =", e.target.value);
-    setName(e.target.value);
-  }}
-/>
+        placeholder="Batch Name"
+        className="border w-full p-4 rounded bg-transparent"
+        value={name}
+        onChange={(e) => {
+          setName(e.target.value);
+        }}
+      />
+
+      {/* Batch Limit */}
+      <input
+        type="number"
+        min="1"
+        max="300"
+        placeholder="Max Students Limit"
+        className="border w-full p-4 rounded mt-4 bg-transparent"
+        value={limit}
+        onChange={(e) => setLimit(e.target.value)}
+      />
 
       {/* Students */}
       <div className="mt-6">
