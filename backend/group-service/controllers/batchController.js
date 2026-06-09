@@ -135,7 +135,10 @@ const assignManager = async (req, res) => {
 
 const availableBatches = async (req, res) => {
   try {
+    const studentId = req.user.user_id;
+
     const batches = await Batch.find({
+      student_ids: { $ne: studentId },
       $expr: {
         $lt: ['$enrolled_count', '$limit'],
       },
