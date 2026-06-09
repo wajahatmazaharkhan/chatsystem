@@ -1,56 +1,15 @@
 import React, { useState } from "react";
 import { createBatch } from "../services/batchService";
 import { calculateGroups } from "../utils/groupCalculator";
-import { useEffect } from "react";
-import { getUsers } from "../services/userService";
 
 export default function BatchCreate() {
   const [name, setName] = useState("");
   const [limit, setLimit] = useState("");
-  const [studentIds, setStudentIds] = useState([]);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
-  const [students, setStudents] = useState([]);
 
-
-const fetchStudents = async () => {
-  try {
-    const data = await getUsers();
-
-    const studentList = data.items
-      .filter(
-        (user) =>
-          user.role === "STUDENT" &&
-          user.is_active
-      )
-      .map((user) => ({
-        id: user.user_id,
-        name: user.name,
-        email: user.email,
-      }));
-
-    setStudents(studentList);
-  } catch (error) {
-    console.error(
-      "Failed to load students",
-      error
-    );
-  }
-};
-
-useEffect(() => {
-    fetchStudents();
-  }, []);
-  const groups = calculateGroups(studentIds.length);
-
-  const toggleStudent = (id) => {
-    setStudentIds((prev) =>
-      prev.includes(id)
-        ? prev.filter((sid) => sid !== id)
-        : [...prev, id]
-    );
-  };
+  const groups = limit ? calculateGroups(Number(limit)) : [];
 
   const submit = async () => {
     setLoading(true);
@@ -66,13 +25,11 @@ useEffect(() => {
       await createBatch({
         name: name.trim(),
         limit: Number(limit),
-        student_ids: studentIds,
       });
 
       setSuccessMsg("Batch created successfully");
       setName("");
       setLimit("");
-      setStudentIds([]);
     } catch (err) {
       
         setErrorMsg("Failed to create batch. Please try another name.");
@@ -119,31 +76,10 @@ useEffect(() => {
         onChange={(e) => setLimit(e.target.value)}
       />
 
-      {/* Students */}
-      <div className="mt-6">
-        <h2 className="font-semibold mb-2">Select Students</h2>
-
-        {students.map((student) => (
-          <label key={student.id} className="block">
-            <input
-              type="checkbox"
-              checked={studentIds.includes(student.id)}
-              onChange={() => toggleStudent(student.id)}
-            />
-            <span className="ml-2">{student.name}</span>
-          </label>
-        ))}
-      </div>
-
       {/* Groups */}
       <div className="mt-8 bg-slate-800 p-6 rounded">
         <h2>Expected Groups</h2>
-
-        {groups.map((group) => (
-          <div key={group.group}>
-            {group.group} ({group.count} students)
-          </div>
-        ))}
+        <div>{groups.length}</div>
       </div>
 
       <button

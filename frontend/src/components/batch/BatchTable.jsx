@@ -37,7 +37,7 @@ export default function BatchTable({ batches }) {
                             </td>
 
                             <td className="text-center">
-                                {batch.student_ids ? batch.student_ids.length : "-"}
+                                {batch.enrolled_count}
                             </td>
 
                             <td className="text-center">
