@@ -1,4 +1,4 @@
-const { createActivityLog, fetchUserActivityLogs } = require('../services/activity.services')
+const { createActivityLog, fetchUserActivityLogs, fetchStudentsInactivityStatus } = require('../services/activity.services')
 
 const logActivity = async(req, res, next) => {
     try{
@@ -32,7 +32,31 @@ const getuserActivity = async(req, res, next) => {
     }
 }
 
+const getStudentsInactivityReport = async (req, res, next) => {
+    try {
+        const { student_ids } = req.body;
+
+        if (!student_ids || !Array.isArray(student_ids)) {
+            const error = new Error('student_ids array is required in request body');
+            error.statusCode = 400;
+            return next(error);
+        }
+
+        const report = await fetchStudentsInactivityStatus(student_ids);
+
+        return res.status(200).json({
+            success: true,
+            message: 'Students inactivity statuses generated successfully',
+            data: report
+        });
+        
+    } catch (err) {
+        next(err);
+    }
+};
+
 module.exports = {
     logActivity,
-    getuserActivity
+    getuserActivity,
+    getStudentsInactivityReport
 }

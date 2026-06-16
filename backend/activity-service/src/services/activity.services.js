@@ -44,7 +44,57 @@ const fetchUserActivityLogs = async (userId, query) => {
     .limit(limit)   
 }
 
+const fetchStudentsInactivityStatus = async (studentIds) => {
+    if (!studentIds || !Array.isArray(studentIds) || studentIds.length === 0) {
+        return [];
+    }
+
+    // Convert string IDs to Mongoose ObjectIds for aggregation filtering
+    const mongoose = require('mongoose');
+    const objectIds = studentIds.map(id => new mongoose.Types.ObjectId(id));
+
+    // Aggregate to get the latest LOGIN timestamp for each student ID
+    const latestLogins = await ActivityLog.aggregate([
+        { 
+            $match: { 
+                user_id: { $in: objectIds }, 
+                activity_type: 'LOGIN' 
+            } 
+        },
+        { 
+            $sort: { timestamp: -1 } 
+        },
+        { 
+            $group: { 
+                _id: '$user_id', 
+                last_login: { $first: '$timestamp' } 
+            } 
+        }
+    ]);
+
+    const latestLoginMap = new Map(latestLogins.map(log => [log._id.toString(), log.last_login]));
+    const now = new Date();
+    const thresholdMs = 96 * 60 * 60 * 1000; 
+
+    return studentIds.map(id => {
+        const lastLogin = latestLoginMap.get(id);
+        let status = 'inactive'; // Default to inactive if no login log exists
+        
+        if (lastLogin) {
+            const timeElapsed = now - new Date(lastLogin);
+            status = timeElapsed >= thresholdMs ? 'inactive' : 'active';
+        }
+
+        return {
+            user_id: id,
+            last_login: lastLogin || null,
+            status: status
+        };
+    });
+};
+
 module.exports = {
     createActivityLog,
-    fetchUserActivityLogs
+    fetchUserActivityLogs,
+    fetchStudentsInactivityStatus
 }
