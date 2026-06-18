@@ -4,7 +4,7 @@ const User = require('../../../schema/User');
 const UserStatus = require('../../../schema/UserStatus');
 const bcrypt = require("bcrypt");
 
-const ALLOWED_ROLES = ['ADMIN', 'MANAGER', 'STUDENT'];
+const ALLOWED_ROLES = ['ADMIN', 'GROUP_MANAGER', 'SUB_GROUP_MANAGER', 'HEAD_HR', 'STUDENT'];
 const ALLOWED_STATUSES = ['ACTIVE', 'INACTIVE'];
 
 function normalizeEnum(value) {
