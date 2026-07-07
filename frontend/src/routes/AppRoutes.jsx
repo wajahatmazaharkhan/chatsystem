@@ -36,6 +36,7 @@ function DashboardResolver() {
 }
 
 import GroupChatDashboard from "../pages/GroupChatDashboard";
+import Leaderboard from "../pages/Ranking/Leaderboard";
 
 export default function AppRoutes() {
   return (
@@ -143,6 +144,15 @@ export default function AppRoutes() {
             element={
               <ProtectedRoute allowedRoles={["ADMIN", "MANAGER", "STUDENT"]}>
                 <GroupChatDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/dashboard/ranking"
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN", "MANAGER", "STUDENT"]}>
+                <Leaderboard />
               </ProtectedRoute>
             }
           />

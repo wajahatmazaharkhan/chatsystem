@@ -6,6 +6,7 @@ import {
   MessageSquare,
   BookOpen,
   LogOut,
+  Award,
 } from "lucide-react";
 
 import { NavLink, useNavigate } from "react-router-dom";
@@ -44,6 +45,11 @@ const roleNavItems = {
       path: "/dashboard/chat",
       icon: <MessageSquare size={20} />,
     },
+    {
+      name: "Ranking",
+      path: "/dashboard/ranking",
+      icon: <Award size={20} />,
+    },
   ],
   MANAGER: [
     {
@@ -61,6 +67,11 @@ const roleNavItems = {
       path: "/dashboard/chat",
       icon: <MessageSquare size={20} />,
     },
+    {
+      name: "Ranking",
+      path: "/dashboard/ranking",
+      icon: <Award size={20} />,
+    },
   ],
   STUDENT: [
     {
@@ -77,6 +88,11 @@ const roleNavItems = {
       name: "Chat",
       path: "/dashboard/chat",
       icon: <MessageSquare size={20} />,
+    },
+    {
+      name: "Ranking",
+      path: "/dashboard/ranking",
+      icon: <Award size={20} />,
     },
   ],
 };

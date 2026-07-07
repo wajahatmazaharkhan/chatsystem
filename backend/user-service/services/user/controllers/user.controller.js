@@ -36,9 +36,18 @@ async function getStatusMap(userIds) {
   }, {});
 }
 
+function getStars(marks) {
+  if (marks == null) return 0;
+  if (marks >= 81) return 5;
+  if (marks >= 61) return 4;
+  if (marks >= 41) return 3;
+  if (marks >= 21) return 2;
+  return 1;
+}
+
 // Helper to remove sensitive/internal fields and normalize output
 // Accepts either a Mongoose document or a plain object (lean results).
-function sanitizeUser(doc, statusMap = {}) {
+function sanitizeUser(doc, statusMap = {}, requesterRole = 'STUDENT') {
   if (!doc) return null;
   const obj = doc.toObject ? doc.toObject() : { ...doc };
   const userId = obj._id ? obj._id.toString() : obj.user_id;
@@ -47,6 +56,18 @@ function sanitizeUser(doc, statusMap = {}) {
   obj.status = statusInfo.status || (obj.is_active === false ? 'INACTIVE' : 'ACTIVE');
   if (statusInfo.last_active_at) {
     obj.last_login = statusInfo.last_active_at;
+  }
+
+  // Handle stars and marks
+  if (obj.performance) {
+    obj.stars = getStars(obj.performance.marks);
+    if (requesterRole === 'STUDENT') {
+      delete obj.performance.marks;
+      delete obj.performance.updatedBy;
+      delete obj.performance.updatedAt;
+    }
+  } else {
+    obj.stars = 0;
   }
 
   // Map MongoDB `_id` to public `user_id` and remove internal fields
@@ -145,7 +166,7 @@ exports.patchStatus = async function patchStatus(req, res, next) {
       });
     }
 
-    const obj = sanitizeUser(user);
+    const obj = sanitizeUser(user, {}, req.user ? req.user.role : 'STUDENT');
 
     return res.json(obj);
 
@@ -202,7 +223,8 @@ exports.listUsers = async function listUsers(req, res, next) {
 
     // Sanitize each item using helper to keep output consistent
     const statusMap = await getStatusMap(items.map((item) => item._id));
-    const mapped = items.map((it) => sanitizeUser(it, statusMap));
+    const requesterRole = req.user ? req.user.role : 'STUDENT';
+    const mapped = items.map((it) => sanitizeUser(it, statusMap, requesterRole));
 
     res.json({ items: mapped, page: pageNum, limit: perPage, total });
   } catch (err) {
@@ -232,13 +254,99 @@ exports.getUser = async function getUser(req, res, next) {
     const statusMap = await getStatusMap([user._id]);
 
     // Sanitize and return
-    const obj = sanitizeUser(user, statusMap);
+    const requesterRole = req.user ? req.user.role : 'STUDENT';
+    const obj = sanitizeUser(user, statusMap, requesterRole);
     res.json(obj);
   } catch (err) {
     next(err);
   }
 };
 
+
+exports.patchMarks = async function patchMarks(req, res, next) {
+  try {
+    const { user_id } = req.params;
+    const { marks } = req.body;
+    const manager_id = req.user ? req.user.user_id : null;
+
+    if (!user_id) {
+      return res.status(400).json({ code: "ERR_INVALID_ID", message: "user_id required" });
+    }
+    if (typeof marks !== 'number' || marks < 0 || marks > 100) {
+      return res.status(400).json({ code: "ERR_VALIDATION", message: "marks must be a number between 0 and 100" });
+    }
+
+    const user = await User.findById(user_id);
+    if (!user || user.deleted_at) {
+      return res.status(404).json({ code: "ERR_NOT_FOUND", message: "User not found" });
+    }
+    if (user.role !== 'STUDENT') {
+      return res.status(400).json({ code: "ERR_VALIDATION", message: "Can only assign marks to a STUDENT" });
+    }
+
+    user.performance = user.performance || {};
+    user.performance.marks = marks;
+    user.performance.updatedBy = manager_id;
+    user.performance.updatedAt = new Date();
+
+    await user.save();
+
+    const obj = sanitizeUser(user, {}, req.user ? req.user.role : 'STUDENT');
+    return res.json(obj);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getRanking = async function getRanking(req, res, next) {
+  try {
+    const students = await User.find({ role: 'STUDENT', deleted_at: null }).lean();
+    
+    // Compute stars
+    const studentsWithStars = students.map(student => {
+      const marks = student.performance && student.performance.marks != null ? student.performance.marks : 0;
+      return {
+        ...student,
+        computed_stars: getStars(marks),
+        computed_marks: marks
+      };
+    });
+
+    // Sort by stars (DESC), then marks (DESC), then name (ASC)
+    studentsWithStars.sort((a, b) => {
+      if (b.computed_stars !== a.computed_stars) {
+        return b.computed_stars - a.computed_stars;
+      }
+      if (b.computed_marks !== a.computed_marks) {
+        return b.computed_marks - a.computed_marks;
+      }
+      return (a.name || '').localeCompare(b.name || '');
+    });
+
+    // Generate response and hide marks if STUDENT
+    const requesterRole = req.user ? req.user.role : 'STUDENT';
+    const rankingResponse = studentsWithStars.map((student, index) => {
+      const resp = {
+        rank: index + 1,
+        user_id: student._id.toString(),
+        name: student.name,
+        stars: student.computed_stars
+      };
+      
+      if (requesterRole === 'ADMIN' || requesterRole === 'MANAGER') {
+        resp.marks = student.computed_marks;
+      }
+      return resp;
+    });
+
+    return res.json({
+      ranking: rankingResponse,
+      total: rankingResponse.length
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 // Export sanitize helper for tests if needed
 exports._sanitizeUser = sanitizeUser;

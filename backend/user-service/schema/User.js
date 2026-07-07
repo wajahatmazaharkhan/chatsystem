@@ -31,6 +31,26 @@ const UserSchema = new mongoose.Schema(
       type: Date,
       default: null, // soft-delete
     },
+    performance: {
+      marks: {
+        type: Number,
+        default: null
+      },
+      is_visible_to_student: {
+        type: Boolean,
+        default: false
+      },
+      updatedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      },
+      updatedAt: {
+        type: Date
+      },
+      internshipPerformance: {
+        type: mongoose.Schema.Types.Mixed
+      }
+    }
   },
   {
     timestamps: {
