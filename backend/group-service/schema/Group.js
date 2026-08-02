@@ -7,14 +7,15 @@ const GroupSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    group_type: {
+      type: String,
+      enum: ['publishing', 'non-publishing'],
+      required: true,
+    },
     batch_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Batch',
       required: true,
-    },
-    manager_id: {
-      type: String,
-      default: null, // null = unassigned
     },
     members: {
       type: [String],
@@ -50,8 +51,8 @@ GroupSchema.index(
   { unique: true, partialFilterExpression: { deleted_at: null } }
 );
 
-// For unassigned groups queries
-GroupSchema.index({ manager_id: 1 }, { sparse: true });
+// Fast batch + type lookups
+GroupSchema.index({ batch_id: 1, group_type: 1 });
 
 // For user → group lookup
 GroupSchema.index({ members: 1 });

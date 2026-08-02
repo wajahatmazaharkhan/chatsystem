@@ -10,6 +10,7 @@ import {
   ChevronRight,
   ClipboardList,
   BarChart3,
+  Award,
 } from "lucide-react";
 
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
@@ -60,6 +61,11 @@ const roleNavItems = {
       path: "/dashboard/chat",
       icon: <MessageSquare size={20} />,
     },
+    {
+      name: "Ranking",
+      path: "/dashboard/ranking",
+      icon: <Award size={20} />,
+    },
   ],
   MANAGER: [
     {
@@ -77,6 +83,11 @@ const roleNavItems = {
       path: "/dashboard/chat",
       icon: <MessageSquare size={20} />,
     },
+    {
+      name: "Ranking",
+      path: "/dashboard/ranking",
+      icon: <Award size={20} />,
+    },
   ],
   STUDENT: [
     {
@@ -93,6 +104,11 @@ const roleNavItems = {
       name: "Chat",
       path: "/dashboard/chat",
       icon: <MessageSquare size={20} />,
+    },
+    {
+      name: "Ranking",
+      path: "/dashboard/ranking",
+      icon: <Award size={20} />,
     },
   ],
 };

@@ -4,6 +4,9 @@ const controller = require('../controllers/user.controller');
 const auth = require('../middleware/auth');
 const rbac = require('../middleware/rbac');
 
+// GET /users/ranking (available to all roles)
+router.get('/ranking', auth, controller.getRanking);
+
 // GET /users
 router.get('/', auth, controller.listUsers);
 
@@ -15,5 +18,8 @@ router.post('/', auth, rbac('ADMIN'), controller.createUser);
 
 // PATCH /users/:user_id (ADMIN only, toggles is_active)
 router.patch('/:user_id', auth, rbac('ADMIN'), controller.patchStatus);
+
+// PATCH /users/:user_id/marks (ADMIN or MANAGER only)
+router.patch('/:user_id/marks', auth, rbac(['ADMIN', 'MANAGER']), controller.patchMarks);
 
 module.exports = router;

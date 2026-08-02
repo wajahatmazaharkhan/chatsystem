@@ -14,3 +14,13 @@ export const updateUserStatus = async (id, is_active) => {
   const res = await api.patch(`/users/${id}`, { is_active });
   return res.data;
 };
+
+export const getRanking = async () => {
+  const res = await api.get("/users/ranking");
+  return res.data;
+};
+
+export const updateUserMarks = async (id, marks) => {
+  const res = await api.patch(`/users/${id}/marks`, { marks });
+  return res.data;
+};

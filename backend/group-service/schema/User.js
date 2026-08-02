@@ -20,7 +20,7 @@ const UserSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['ADMIN', 'MANAGER', 'STUDENT'],
+      enum: ['ADMIN', 'STUDENT', 'GROUP_MANAGER', 'SUB_GROUP_MANAGER', 'HEAD_HR'],
       required: true,
     },
     is_active: {
@@ -31,6 +31,22 @@ const UserSchema = new mongoose.Schema(
       type: Date,
       default: null, // soft-delete
     },
+    performance: {
+      marks: {
+        type: Number,
+        default: null
+      },
+      updatedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      },
+      updatedAt: {
+        type: Date
+      },
+      internshipPerformance: {
+        type: mongoose.Schema.Types.Mixed
+      }
+    }
   },
   {
     timestamps: {
