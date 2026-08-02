@@ -206,6 +206,7 @@ exports.listUsers = async function listUsers(req, res, next) {
 
     res.json({ items: mapped, page: pageNum, limit: perPage, total });
   } catch (err) {
+    console.log(err)
     if (err.statusCode) {
       return res.status(err.statusCode).json({ code: 'ERR_VALIDATION', message: err.message });
     }

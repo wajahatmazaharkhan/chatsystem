@@ -14,7 +14,7 @@ exports.getAdminAnalytics =
       const token = req.headers.authorization;
       const result =
         await analyticsService
-          .getAdminAnalytics(token);
+          .getAdminAnalytics(token, req.query);
 
       res.status(200).json(result);
 
@@ -84,4 +84,31 @@ exports.getManagerAnalytics = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-};
+};
+
+
+exports.getActivityLogs = async (req, res, next) => {
+  try {
+    const data = await analyticsService.getActivityLogs(
+      req.headers.authorization,
+      req.query
+    );
+
+    res.status(200).json(data);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getBatchOverview = async (req, res, next) => {
+  try {
+    const result = await analyticsService.getBatchOverview(
+      req.headers.authorization
+    );
+
+    res.status(200).json(result);
+  } catch (err) {
+    console.error('Error fetching batch overview:', err);
+    next(err);
+  }
+};

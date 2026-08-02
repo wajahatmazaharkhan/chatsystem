@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { logActivity, getuserActivity, getStudentsInactivityReport } = require('../controllers/activity.controller');
+const { logActivity, getuserActivity, getStudentsInactivityReport, getSummary, getLogs, countActivitiesByUsers, queryActivities, getBatchSummary } = require('../controllers/activity.controller');
 
 const { authenticate, requireRole } = require('../middleware/auth.middleware');
 
@@ -26,6 +26,29 @@ router.post(
   authenticate, 
   requireRole('ADMIN', 'MANAGER'), 
   getStudentsInactivityReport
+);
+
+router.get(
+  "/summary",
+  authenticate,
+  requireRole("ADMIN", "SUB_ADMIN", "MANAGER"),
+  getSummary,
+);
+
+router.get('/logs', authenticate, requireRole("ADMIN", "SUB_ADMIN", "MANAGER"), getLogs)
+router.post("/count-by-users", authenticate, requireRole("  ADMIN", "SUB_ADMIN", "MANAGER"), countActivitiesByUsers);
+router.post(
+  "/query",
+  authenticate,
+  requireRole("ADMIN", "SUB_ADMIN", "MANAGER"),
+  queryActivities
+);
+
+router.post(
+  "/batch-summary",
+  authenticate,
+  requireRole("ADMIN", "SUB_ADMIN", "MANAGER"),
+  getBatchSummary
 );
 
 module.exports = router;

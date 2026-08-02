@@ -310,4 +310,23 @@ const getMyGroup = async (req, res) => {
   }
 };
 
-module.exports = { getAllGroups, getGroupById, getGroupMembers, validateMembership, getMyGroup };
+const getGroupsByBatch = async (req, res, next) => {
+  try {
+    const { batch_id } = req.params;
+
+    const groups = await Group.find({
+      batch_id: new mongoose.Types.ObjectId(batch_id),
+      deleted_at: null,
+    }).lean();
+
+    res.status(200).json({
+      success: true,
+      count: groups.length,
+      groups,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { getAllGroups, getGroupById, getGroupMembers, validateMembership, getMyGroup, getGroupsByBatch };

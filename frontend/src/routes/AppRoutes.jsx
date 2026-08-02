@@ -36,6 +36,7 @@ function DashboardResolver() {
 }
 
 import GroupChatDashboard from "../pages/GroupChatDashboard";
+import ActivityMonitoring from "../pages/Activity/ActivityMonitoring";
 
 export default function AppRoutes() {
   return (
@@ -134,6 +135,15 @@ export default function AppRoutes() {
             element={
               <ProtectedRoute allowedRoles={["ADMIN"]}>
                 <UserActivityLogs />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route 
+            path="/dashboard/activity-monitoring"
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN"]}>
+                <ActivityMonitoring />
               </ProtectedRoute>
             }
           />

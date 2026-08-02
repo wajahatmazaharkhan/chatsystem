@@ -7,5 +7,7 @@ router.get('/group', analyticsController.getManagerAnalytics);
 router.get('/group/:id', analyticsController.getGroupAnalytics);
 router.get('/student', analyticsController.getStudentAnalytics);
 
-module.exports = router;
+router.get("/activity-logs", analyticsController.getActivityLogs );
+router.get("/batch-overview", analyticsController.getBatchOverview);
 
+module.exports = router;
