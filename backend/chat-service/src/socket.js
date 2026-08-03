@@ -8,7 +8,7 @@ let io;
 const initSocket = (server) => {
     io = new Server(server, {
         cors: {
-            origin: "http://localhost:5173", // Adjust this to match your specific React App URL if needed
+            origin: "https://iisppr.com", // Adjust this to match your specific React App URL if needed
             methods: ["GET", "POST"]
         }
     });
