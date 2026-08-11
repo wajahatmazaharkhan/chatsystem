@@ -30,7 +30,9 @@ export default function UserManagementTable({ users = [], loading = false }) {
     
     const matchesRole = roleFilter === 'All roles' || u.role === roleFilter || (roleFilter === 'Admin' && u.role === 'ADMIN') || (roleFilter === 'Manager' && u.role === 'MANAGER') || (roleFilter === 'Student' && u.role === 'STUDENT');
     
-    const uStatusStr = u.status ? (u.status === 'ACTIVE' ? 'Active' : 'Inactive') : (u.is_active ? 'Active' : 'Inactive');
+    const uStatusStr =
+    //  u.status ? (u.status === 'ACTIVE' ? 'Active' : 'Inactive') : (u.is_active ? 'Active' : 'Inactive');
+    u.status === "ACTIVE" ? "Active" : "Inactive";
     const matchesStatus = statusFilter === 'All status' || uStatusStr === statusFilter;
     
     return matchesSearch && matchesRole && matchesStatus;

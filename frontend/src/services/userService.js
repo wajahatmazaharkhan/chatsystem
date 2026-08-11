@@ -24,3 +24,8 @@ export const updateUserMarks = async (id, marks) => {
   const res = await api.patch(`/users/${id}/marks`, { marks });
   return res.data;
 };
+
+export const updateUser = async (id, data) => {
+  const res = await api.put(`/users/${id}`, data);
+  return res.data;
+};

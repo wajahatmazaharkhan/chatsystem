@@ -80,6 +80,25 @@ class AuthController {
             });
         }
     }
+
+    async register(req, res) {
+        try {
+            console.log('📝 [CONTROLLER] REGISTER REQUEST RECEIVED');
+            console.log('Body:', req.body);
+            
+            const result = await authService.register(req.body);
+            console.log('✅ [CONTROLLER] Registration successful');
+            res.status(201).json(result);
+            
+        } catch (error) {
+            console.error('❌ [CONTROLLER] Register error:', error.message);
+            const status = error.statusCode || 400;
+            res.status(status).json({
+                success: false,
+                error: error.message
+            });
+        }
+    }
 }
 
 module.exports = new AuthController();

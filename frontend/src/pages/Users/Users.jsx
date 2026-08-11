@@ -3,7 +3,9 @@ import {
   getUsers,
   createUser,
   updateUserStatus,
+  updateUser,
 } from "../../services/userService";
+import { getAllGroups } from "../../services/groupService";
 
 import UserTable from "./UserTable";
 import UserForm from "./UserForm";
@@ -11,9 +13,14 @@ import UserFilters from "./UserFilters";
 
 export default function Users() {
   const [users, setUsers] = useState([]);
+  const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [filters, setFilters] = useState({ role: "", is_active: "" });
+  const [userToEdit, setUserToEdit] = useState(null);
+  const [filters, setFilters] = useState({
+    role: "",
+    status: ""
+  });
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -26,53 +33,58 @@ export default function Users() {
     setLoading(false);
   };
 
+  const fetchGroups = async () => {
+    try {
+      const res = await getAllGroups();
+      const groupItems = Array.isArray(res.data) ? res.data : (res.data?.items || res.data?.groups || []);
+      setGroups(groupItems);
+    } catch (err) {
+      console.error("Failed to fetch groups", err);
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
   }, [filters]);
 
-//   const handleCreate = async (payload) => {
-//   try {
-//     console.log("Submitting user:", payload);
+  useEffect(() => {
+    fetchGroups();
+  }, []);
 
-//     const res = await createUser(payload);
-
-//     console.log("SUCCESS:", res);
-
-//     setShowForm(false);
-//     fetchUsers();
-
-//   } catch (err) {
-//     console.error("CREATE ERROR:", err.response?.data || err.message);
-
-//     alert(
-//       err.response?.data?.message ||
-//       "Failed to create user (check console)"
-//     );
-//   }
-// };
-
-const handleCreate = async (payload) => {
-  console.log("STEP 1: clicked");
-
-  try {
-    console.log("STEP 2: API call");
-
-    await createUser(payload);
-
-    console.log("STEP 3: success");
-
-    setShowForm(false);
-
-    console.log("STEP 4: modal closed");
-
-  } catch (err) {
-    console.log("STEP ERROR:", err);
-  }
-};
+  const handleSubmitForm = async (payload) => {
+    try {
+      if (userToEdit) {
+        await updateUser(userToEdit.user_id, payload);
+      } else {
+        await createUser(payload);
+      }
+      setShowForm(false);
+      setUserToEdit(null);
+      fetchUsers();
+    } catch (err) {
+      console.error("Submit user error:", err);
+      alert(err.response?.data?.message || err.message || "Failed to submit user details.");
+    }
+  };
 
   const handleToggleStatus = async (id, currentStatus) => {
-    await updateUserStatus(id, !currentStatus);
+    const nextStatus =
+      currentStatus === "ACTIVE"
+        ? "INACTIVE"
+        : "ACTIVE";
+
+    await updateUserStatus(id, nextStatus);
     fetchUsers();
+  };
+
+  const handleEditClick = (user) => {
+    setUserToEdit(user);
+    setShowForm(true);
+  };
+
+  const handleCloseForm = () => {
+    setShowForm(false);
+    setUserToEdit(null);
   };
 
   return (
@@ -81,7 +93,10 @@ const handleCreate = async (payload) => {
         <h1 className="text-2xl font-bold">Users</h1>
 
         <button
-          onClick={() => setShowForm(true)}
+          onClick={() => {
+            setUserToEdit(null);
+            setShowForm(true);
+          }}
           className="bg-blue-600 text-white px-4 py-2 rounded"
         >
           + Add User
@@ -96,13 +111,17 @@ const handleCreate = async (payload) => {
         <UserTable
           users={users}
           onToggleStatus={handleToggleStatus}
+          onEdit={handleEditClick}
         />
       )}
 
       {showForm && (
         <UserForm
-          onClose={() => setShowForm(false)}
-          onSubmit={handleCreate}
+          onClose={handleCloseForm}
+          onSubmit={handleSubmitForm}
+          userToEdit={userToEdit}
+          users={users}
+          groups={groups}
         />
       )}
     </div>

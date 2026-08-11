@@ -1,27 +1,3 @@
-// const jwt = require("jsonwebtoken");
-
-// const SECRET = "mysecretkey";
-
-// const generateToken = (user) => {
-//     return jwt.sign(
-//         {
-//             id: user.id,
-//             role: user.role
-//         },
-//         SECRET,
-//         {
-//             expiresIn: "1h"
-//         }
-//     );
-// };
-
-// module.exports = {
-//     generateToken,
-//     SECRET
-// };
-
-
-
 
 
 const jwt = require("jsonwebtoken");

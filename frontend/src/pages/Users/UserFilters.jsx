@@ -6,9 +6,9 @@ export default function UserFilters({ setFilters }) {
 
   const applyFilters = () => {
   setFilters({
-    role,
-    is_active: status === "" ? "" : status === "true",
-  });
+  role,
+  status,
+});
 };
 
   return (
@@ -20,13 +20,16 @@ export default function UserFilters({ setFilters }) {
         className="border p-2"
       > */}
       <select
-  value={role}
-  onChange={(e) => setRole(e.target.value)}
-  className="border p-2 bg-white text-black rounded"
->
+        value={role}
+        onChange={(e) => setRole(e.target.value)}
+        className="border p-2 bg-white text-black rounded"
+      >
         <option value="">All Roles</option>
         <option value="ADMIN">ADMIN</option>
-        <option value="MANAGER">MANAGER</option>
+        <option value="SUB_ADMIN">SUB_ADMIN</option>
+        <option value="HEAD_HR">HEAD_HR</option>
+        <option value="GROUP_MANAGER">GROUP_MANAGER</option>
+        <option value="SUB_GROUP_MANAGER">SUB_GROUP_MANAGER</option>
         <option value="STUDENT">STUDENT</option>
       </select>
 
@@ -40,9 +43,9 @@ export default function UserFilters({ setFilters }) {
   onChange={(e) => setStatus(e.target.value)}
   className="border p-2 bg-white text-black rounded"
 >
-        <option value="">All Status</option>
-        <option value="true">ACTIVE</option>
-        <option value="false">INACTIVE</option>
+       <option value="">All Status</option>
+<option value="ACTIVE">ACTIVE</option>
+<option value="INACTIVE">INACTIVE</option>
       </select>
 
       <button

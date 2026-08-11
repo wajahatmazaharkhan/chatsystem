@@ -8,16 +8,19 @@ const rbac = require('../middleware/rbac');
 router.get('/ranking', auth, controller.getRanking);
 
 // GET /users
-router.get('/', auth, controller.listUsers);
+router.get('/', auth, rbac('VIEW_USERS'), controller.listUsers);
 
 // GET /users/:user_id
-router.get('/:user_id', auth, controller.getUser);
+router.get('/:user_id', auth, rbac('VIEW_USERS'), controller.getUser);
 
-// POST /users (ADMIN only - only admins can create users)
-router.post('/', auth, rbac('ADMIN'), controller.createUser);
+// POST /users
+router.post('/', auth, rbac('CREATE_USERS'), controller.createUser);
 
-// PATCH /users/:user_id (ADMIN only, toggles is_active)
-router.patch('/:user_id', auth, rbac('ADMIN'), controller.patchStatus);
+// PUT /users/:user_id
+router.put('/:user_id', auth, rbac('EDIT_USERS'), controller.updateUser);
+
+// PATCH /users/:user_id (toggles is_active)
+router.patch('/:user_id', auth, rbac('EDIT_USERS'), controller.patchStatus);
 
 // PATCH /users/:user_id/marks (ADMIN or MANAGER only)
 router.patch('/:user_id/marks', auth, rbac(['ADMIN', 'MANAGER']), controller.patchMarks);

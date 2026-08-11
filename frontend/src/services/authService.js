@@ -26,3 +26,16 @@ export const handleLogout = async () => {
     localStorage.removeItem("token");
   }
 };
+
+export const handleRegister = async (userData) => {
+  try {
+    const response = await api.post("/auth/register", userData);
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.error || error.response?.data?.message || "Registration failed",
+      { cause: error }
+    );
+  }
+};
+

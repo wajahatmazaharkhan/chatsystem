@@ -4,9 +4,37 @@ const app = require('../server');
 describe('Auth Module - integration', () => {
   let server;
 
-  beforeAll((done) => {
-    // listen only when running tests to ensure the app is a real http server
-    server = app.listen(3001, () => done());
+  beforeAll(async () => {
+    const mongoose = require('mongoose');
+    const bcrypt = require('bcrypt');
+    const User = mongoose.model('User');
+    const email = 'admin@cohort.com';
+    let user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      const password_hash = await bcrypt.hash('admin123', 10);
+      await User.create({
+        name: 'Test Admin',
+        email,
+        password_hash,
+        role: 'ADMIN',
+        hierarchyLevel: 1,
+        permissions: [
+          "VIEW_USERS",
+          "CREATE_USERS",
+          "EDIT_USERS",
+          "DELETE_USERS",
+          "VIEW_CONTACTS",
+          "ASSIGN_GROUPS",
+          "MANAGE_GROUPS",
+          "PUBLISH_CONTENT"
+        ]
+      });
+      console.log('✅ Seeded admin@cohort.com in test database.');
+    }
+
+    return new Promise((resolve) => {
+      server = app.listen(3001, () => resolve());
+    });
   });
 
   afterAll((done) => {
@@ -43,7 +71,7 @@ describe('Auth Module - integration', () => {
     const validateAfter = await request(app)
       .get('/auth/validate')
       .set('Authorization', `Bearer ${token}`)
-      .expect(200);
+      .expect(401);
 
     expect(validateAfter.body).toHaveProperty('valid', false);
   });

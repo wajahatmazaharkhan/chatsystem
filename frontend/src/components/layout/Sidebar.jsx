@@ -129,7 +129,7 @@ const roleMetadata = {
 };
 
 export default function Sidebar() {
-  const { user, logout } = useAuth();
+  const { user, logout, hasPermission } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -138,8 +138,59 @@ export default function Sidebar() {
   });
 
   const role = user?.role?.toUpperCase() || "STUDENT";
-  const navItems = roleNavItems[role] || roleNavItems.STUDENT;
-  const metadata = roleMetadata[role] || roleMetadata.STUDENT;
+  const mappedRole = role === 'GROUP_MANAGER' ? 'MANAGER' : role;
+  const rawNavItems = roleNavItems[mappedRole] || roleNavItems[role] || roleNavItems.STUDENT;
+
+  const navItems = rawNavItems.filter(item => {
+    if (item.name === "Users" || item.name === "Activity") {
+      return hasPermission("VIEW_USERS");
+    }
+    if (item.name === "Batches") {
+      return hasPermission("ASSIGN_GROUPS") || role === "STUDENT";
+    }
+    if (item.name === "Groups") {
+      return hasPermission("MANAGE_GROUPS");
+    }
+    return true;
+  });
+
+  const getRoleMetadata = (r, roleType) => {
+    const upperRole = r?.toUpperCase();
+    if (upperRole === 'ADMIN') {
+      return {
+        sidebarSubtitle: "Admin Control Center",
+        roleName: "System Administrator",
+      };
+    } else if (upperRole === 'SUB_ADMIN') {
+      return {
+        sidebarSubtitle: "Admin Control Center",
+        roleName: "Sub-Admin",
+      };
+    } else if (upperRole === 'HEAD_HR') {
+      const typeStr = roleType ? ` (${roleType === 'PUBLISHING' ? 'Publishing' : 'Non-Publishing'})` : '';
+      return {
+        sidebarSubtitle: "HR Control Center",
+        roleName: `Head HR${typeStr}`,
+      };
+    } else if (upperRole === 'GROUP_MANAGER' || upperRole === 'MANAGER') {
+      return {
+        sidebarSubtitle: "Manager Control Center",
+        roleName: "Group Manager",
+      };
+    } else if (upperRole === 'SUB_GROUP_MANAGER') {
+      return {
+        sidebarSubtitle: "Manager Control Center",
+        roleName: "Sub Group Manager",
+      };
+    } else {
+      return {
+        sidebarSubtitle: "Student Portal",
+        roleName: "Student",
+      };
+    }
+  };
+
+  const metadata = getRoleMetadata(user?.role, user?.roleType);
 
   const logoutUser = async () => {
     try {
@@ -153,7 +204,7 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="fixed left-0 top-0 w-72 h-screen bg-slate-900 border-r border-slate-800 flex flex-col">
+    <aside className="fixed left-0 top-0 w-72 h-screen bg-slate-900 border-r border-slate-800 flex flex-col z-20">
       {/* Logo */}
       <div className="p-4 border-b border-slate-800">
         <h1 className="text-3xl font-bold text-white">EduManager</h1>

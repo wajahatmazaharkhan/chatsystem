@@ -25,14 +25,17 @@ const authMiddleware = async (req, res, next) => {
     );
 
     // Extract user_id and role from Module 1's response
-    const { user_id, role } = response.data;
+    const { user_id, role, roleType, permissions, hierarchyLevel } = response.data;
 
     // Attach to request for downstream services
-    req.user = { user_id, role };
+    req.user = { user_id, role, roleType, permissions, hierarchyLevel };
 
     // Also inject them as headers to be forwarded
     req.headers['x-user-id'] = user_id;
     req.headers['x-user-role'] = role;
+    req.headers['x-user-role-type'] = roleType || '';
+    req.headers['x-user-permissions'] = JSON.stringify(permissions || []);
+    req.headers['x-user-hierarchy-level'] = String(hierarchyLevel !== undefined && hierarchyLevel !== null ? hierarchyLevel : 6);
 
     next();
   } catch (error) {
