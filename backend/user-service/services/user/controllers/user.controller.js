@@ -62,11 +62,7 @@ function getStars(marks) {
 
 // Helper to remove sensitive/internal fields and normalize output
 // Accepts either a Mongoose document or a plain object (lean results).
-<<<<<<< HEAD
-function sanitizeUser(doc, statusMap = {}, requesterRole = 'STUDENT') {
-=======
 function sanitizeUser(doc, statusMap = {}, requestingUser = null) {
->>>>>>> b073c12 (feat(user-mgmt): implement RBAC authentication, user management UI/services, and migration utilities)
   if (!doc) return null;
   const obj = doc.toObject ? doc.toObject() : { ...doc };
   const userId = obj._id ? obj._id.toString() : obj.user_id;
@@ -422,12 +418,7 @@ exports.listUsers = async function listUsers(req, res, next) {
 
     // Sanitize each item using helper to keep output consistent
     const statusMap = await getStatusMap(items.map((item) => item._id));
-<<<<<<< HEAD
-    const requesterRole = req.user ? req.user.role : 'STUDENT';
-    const mapped = items.map((it) => sanitizeUser(it, statusMap, requesterRole));
-=======
     const mapped = items.map((it) => sanitizeUser(it, statusMap, req.user));
->>>>>>> b073c12 (feat(user-mgmt): implement RBAC authentication, user management UI/services, and migration utilities)
 
     res.json({ items: mapped, page: pageNum, limit: perPage, total });
   } catch (err) {
