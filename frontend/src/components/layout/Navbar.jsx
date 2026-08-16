@@ -19,7 +19,7 @@ export default function Navbar() {
   }
   
   return (
-    <header className="fixed top-0 left-72 right-0 h-14 bg-slate-900 border-b border-slate-800 px-8 flex justify-between items-center">
+    <header className="fixed top-0 left-72 right-0 h-14 bg-slate-900 border-b border-slate-800 px-8 flex justify-between items-center z-20">
       {/* Left */}
       <div>
         <h1 className="text-2xl font-bold text-white">{title}</h1>

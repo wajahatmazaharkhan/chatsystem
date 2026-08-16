@@ -1,7 +1,11 @@
 import api from './api';
 
-export async function fetchAdminStats() {
-  const res = await api.get('/v1/analytics/admin');
+export async function fetchAdminStats(batchId = null) {
+  const res = await api.get('/v1/analytics/admin', {
+    params: {
+      batch_id: batchId
+    }
+  });
   return res.data;
 }
 
@@ -18,4 +22,17 @@ export async function fetchManagerStats() {
 export async function fetchStudentStats() {
   const res = await api.get('/v1/analytics/student');
   return res.data;
+}
+
+export const getActivityLogs = async (params = {}) => {
+  const res = await api.get("/v1/analytics/activity-logs", {
+    params,
+  });
+
+  return res.data;
+};
+
+export const getBatchOverview = async() => {
+  const res = await api.get('/v1/analytics/batch-overview')
+  return res.data
 }

@@ -5,6 +5,7 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import { useAuth } from "../context/AuthContext";
 
 import Login from "../pages/auth/Login";
+import SignUp from "../pages/auth/SignUp";
 
 import BatchCreate from "../pages/BatchCreate";
 import BatchList from "../pages/BatchList";
@@ -22,29 +23,30 @@ import UserActivityLogs from "../pages/Activity/UserActivityLogs";
 
 function DashboardResolver() {
   const { user } = useAuth();
+  const role = user?.role?.toUpperCase();
 
-  switch (user?.role?.toUpperCase()) {
-    case "MANAGER":
-      return <ManagerDashboard />;
-
-    case "STUDENT":
-      return <StudentDashboard />;
-
-    default:
-      return <AdminDashboard />;
+  if (role === "STUDENT") {
+    return <StudentDashboard />;
+  } else if (role === "MANAGER" || role === "GROUP_MANAGER" || role === "SUB_GROUP_MANAGER") {
+    return <ManagerDashboard />;
+  } else {
+    return <AdminDashboard />;
   }
 }
 
 import GroupChatDashboard from "../pages/GroupChatDashboard";
+import ActivityMonitoring from "../pages/Activity/ActivityMonitoring";
+import Leaderboard from "../pages/Ranking/Leaderboard";
 
 export default function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Login Route */}
+        {/* Auth Routes */}
         <Route path="/" element={<Login />} />
 
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
 
         {/* Dashboard Routes */}
         <Route
@@ -60,7 +62,7 @@ export default function AppRoutes() {
           <Route
             path="/dashboard/users"
             element={
-              <ProtectedRoute allowedRoles={["ADMIN"]}>
+              <ProtectedRoute requiredPermission="VIEW_USERS" allowedRoles={["ADMIN"]}>
                 <Users />
               </ProtectedRoute>
             }
@@ -69,7 +71,7 @@ export default function AppRoutes() {
           <Route
             path="/dashboard/batches/create"
             element={
-              <ProtectedRoute allowedRoles={["ADMIN"]}>
+              <ProtectedRoute requiredPermission="ASSIGN_GROUPS" allowedRoles={["ADMIN"]}>
                 <BatchCreate />
               </ProtectedRoute>
             }
@@ -78,7 +80,7 @@ export default function AppRoutes() {
           <Route
             path="/dashboard/batches"
             element={
-              <ProtectedRoute allowedRoles={["ADMIN"]}>
+              <ProtectedRoute requiredPermission="ASSIGN_GROUPS" allowedRoles={["ADMIN"]}>
                 <BatchList />
               </ProtectedRoute>
             }
@@ -87,7 +89,7 @@ export default function AppRoutes() {
           <Route
             path="/dashboard/batches/:id"
             element={
-              <ProtectedRoute allowedRoles={["ADMIN"]}>
+              <ProtectedRoute requiredPermission="ASSIGN_GROUPS" allowedRoles={["ADMIN"]}>
                 <BatchDetails />
               </ProtectedRoute>
             }
@@ -105,7 +107,7 @@ export default function AppRoutes() {
           <Route
             path="/dashboard/groups"
             element={
-              <ProtectedRoute allowedRoles={["ADMIN", "MANAGER"]}>
+              <ProtectedRoute requiredPermission="MANAGE_GROUPS" allowedRoles={["ADMIN", "MANAGER", "GROUP_MANAGER"]}>
                 <GroupList />
               </ProtectedRoute>
             }
@@ -114,7 +116,7 @@ export default function AppRoutes() {
           <Route
             path="/dashboard/groups/:id"
             element={
-              <ProtectedRoute allowedRoles={["ADMIN", "MANAGER"]}>
+              <ProtectedRoute requiredPermission="MANAGE_GROUPS" allowedRoles={["ADMIN", "MANAGER", "GROUP_MANAGER"]}>
                 <GroupDetails />
               </ProtectedRoute>
             }
@@ -123,7 +125,7 @@ export default function AppRoutes() {
           <Route
             path="/dashboard/activity"
             element={
-              <ProtectedRoute allowedRoles={["ADMIN"]}>
+              <ProtectedRoute requiredPermission="VIEW_USERS" allowedRoles={["ADMIN"]}>
                 <ActivityUsers />
               </ProtectedRoute>
             }
@@ -132,8 +134,17 @@ export default function AppRoutes() {
           <Route
             path="/dashboard/activity/:userId"
             element={
-              <ProtectedRoute allowedRoles={["ADMIN"]}>
+              <ProtectedRoute requiredPermission="VIEW_USERS" allowedRoles={["ADMIN"]}>
                 <UserActivityLogs />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route 
+            path="/dashboard/activity-monitoring"
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN"]}>
+                <ActivityMonitoring />
               </ProtectedRoute>
             }
           />
@@ -141,8 +152,17 @@ export default function AppRoutes() {
           <Route
             path="/dashboard/chat"
             element={
-              <ProtectedRoute allowedRoles={["ADMIN", "MANAGER", "STUDENT"]}>
+              <ProtectedRoute allowedRoles={["ADMIN", "SUB_ADMIN", "HEAD_HR", "MANAGER", "GROUP_MANAGER", "SUB_GROUP_MANAGER", "STUDENT"]}>
                 <GroupChatDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/dashboard/ranking"
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN", "MANAGER", "STUDENT"]}>
+                <Leaderboard />
               </ProtectedRoute>
             }
           />

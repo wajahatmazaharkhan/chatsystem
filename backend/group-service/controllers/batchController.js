@@ -1,6 +1,8 @@
 const Batch = require('../models/Batch');
 const Group = require('../models/Group');
 const User = require('../schema/User');
+const GroupManagerMapping = require('../models/GroupManagerMapping');
+const GroupHRMapping = require('../models/GroupHRMapping');
 // const { chunkIntoGroups, buildGroupDocuments } = require('../services/groupingService');
 
 const createBatch = async (req, res) => {
@@ -13,9 +15,9 @@ const createBatch = async (req, res) => {
       });
     }
 
-    if (limit > 300) {
+    if (limit > 140) {
       return res.status(400).json({
-        error: 'batch limit cannot exceed 300',
+        error: 'batch limit cannot exceed 140',
       });
     }
 
@@ -32,6 +34,30 @@ const createBatch = async (req, res) => {
       limit,
       created_by: req.user.user_id,
     });
+
+    const groups = [];
+
+  // 8 Publishing Groups
+  for (let i = 1; i <= 8; i++) {
+    groups.push({
+      batch_id: batch._id,
+      name: `${batch.name} - Publishing Group ${i}`,
+      group_type: 'publishing',
+      members: []
+    });
+  }
+
+  // 12 Non Publishing Groups
+  for (let i = 1; i <= 12; i++) {
+    groups.push({
+      batch_id: batch._id,
+      name: `${batch.name} - Non Publishing Group ${i}`,
+      group_type: 'non-publishing',
+      members: []
+    });
+  }
+
+  await Group.insertMany(groups);
 
     return res.status(201).json({
       batch_id: batch._id,
@@ -76,62 +102,65 @@ const getBatchById = async (req, res) => {
     if (!batch) return res.status(404).json({ error: 'Batch not found' });
 
     const groups = await Group.find({ batch_id: batch._id }).lean();
-    const students = await User.find({ _id: { $in: batch.student_ids } },'name email').lean();
+    const students = await User.find({ _id: { $in: batch.student_ids } },'name email role').lean();
     const slotsLeft = batch.limit - batch.enrolled_count;
 
     const mongoose = require('mongoose');
-    const managerIdsRaw = [...new Set(groups.map(g => g.manager_id).filter(Boolean))];
-    const managerIds = managerIdsRaw.filter(id => mongoose.Types.ObjectId.isValid(id));
-    const managers = await User.find({ _id: { $in: managerIds } }, 'name').lean();
-    const managerMap = managers.reduce((acc, m) => {
-      acc[m._id.toString()] = m.name;
-      return acc;
-    }, {});
+    const managerMappings = await GroupManagerMapping.find({ group_id: { $in: groups.map(g => g._id) }, is_active: true }).lean();   
+    const hrMappings = await GroupHRMapping.find({ group_id: { $in: groups.map(g => g._id) }, is_active: true}).lean();
 
-    const groupsWithNames = groups.map(g => ({
-      ...g,
-      manager_name: g.manager_id ? managerMap[g.manager_id.toString()] || null : null
+    const managerMap = {};
+    const hrMap = {};
+
+    managerMappings.forEach(m => {
+      managerMap[m.group_id.toString()] = m;
+    });
+
+    hrMappings.forEach(h => {
+      hrMap[h.group_id.toString()] = h;
+    });
+
+    groups.sort((a, b) => {
+      if (a.group_type !== b.group_type) {
+        return a.group_type === 'publishing' ? -1 : 1;
+      }
+
+      const aNum = parseInt(a.name.match(/\d+$/)[0]);
+      const bNum = parseInt(b.name.match(/\d+$/)[0]);
+
+      return aNum - bNum;
+    });
+
+    const groupsData = groups.map(group => ({
+      ...group,
+
+      head_hr_id:
+        hrMap[group._id.toString()]
+          ?.head_hr_id || null,
+
+      group_manager_id:
+        managerMap[group._id.toString()]
+          ?.group_manager_id || null,
+
+      sub_group_manager_id:
+        managerMap[group._id.toString()]
+          ?.sub_group_manager_id || null
     }));
 
     return res.status(200).json({
       batch,
       students,
-      groups: groupsWithNames,
+      groups: groupsData,
       total_groups: groups.length,
-      slotsLeft
+      slots_left: slotsLeft
     });
+
   } catch (err) {
     if (err.name === 'CastError') return res.status(404).json({ error: 'Batch not found' });
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
 
-const assignManager = async (req, res) => {
-  try {
-    const { manager_id } = req.body;
-
-    if (!manager_id) {
-      return res.status(400).json({ error: 'manager_id is required' });
-    }
-
-    const group = await Group.findByIdAndUpdate(
-      req.params.group_id,
-      { manager_id },
-      { new: true }
-    );
-
-    if (!group) return res.status(404).json({ error: 'Group not found' });
-
-    return res.status(200).json({
-      group_id: group._id,
-      manager_id: group.manager_id,
-      message: 'Manager assigned successfully',
-    });
-  } catch (err) {
-    if (err.name === 'CastError') return res.status(404).json({ error: 'Group not found' });
-    return res.status(500).json({ error: 'Internal server error' });
-  }
-};
 
 const availableBatches = async (req, res) => {
   try {
@@ -192,21 +221,15 @@ const enrollBatch = async (req, res) => {
       },
     }).sort({ created_at: 1 });
 
-    if (group) {
-      group.members.push(studentId);
-
-      await group.save();
-    } else {
-      const groupCount = await Group.countDocuments({
-        batch_id,
-      });
-
-      group = await Group.create({
-        batch_id,
-        name: `${batch.name} - Group ${groupCount + 1}`,
-        members: [studentId],
+    if (!group) {
+      return res.status(400).json({
+        error: 'All groups are full'
       });
     }
+
+    group.members.push(studentId);
+
+    await group.save();
 
     batch.student_ids.push(studentId);
     batch.enrolled_count += 1;
@@ -251,4 +274,4 @@ const enrolledBatches = async (req, res) => {
 
 
 
-module.exports = { createBatch, getAllBatches, getBatchById, assignManager, availableBatches, enrollBatch, enrolledBatches };
+module.exports = { createBatch, getAllBatches, getBatchById, availableBatches, enrollBatch, enrolledBatches };

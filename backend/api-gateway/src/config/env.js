@@ -17,7 +17,9 @@ const config = {
   },
   rateLimit: {
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS, 10) || 15 * 60 * 1000, // 15 minutes by default
-    max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS, 10) || 100 // limit each IP to 100 requests per windowMs
+    max: process.env.NODE_ENV === "development"
+      ? 1000
+      : parseInt(process.env.RATE_LIMIT_MAX_REQUESTS, 10) || 100,
   }
 };
 console.log('Auth proxy target:', config.modules.auth);

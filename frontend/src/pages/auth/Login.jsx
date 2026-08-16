@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Mail, Lock, Eye, EyeOff, XCircle } from "lucide-react";
 import { useEffect } from "react";
 import { handleLogin } from "../../services/authService";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 export default function App() {
@@ -26,18 +26,7 @@ const loginUser = async () => {
 
     login(data.user, data.token);
     setUserData(data.user);
-
-    const role = data.user.role;
-
-    if (role === "ADMIN") {
-      navigate("/dashboard/analytics");
-    } else if (role === "MANAGER") {
-      navigate("/dashboard/analytics");
-    } else if (role === "STUDENT") {
-      navigate("/dashboard/analytics");
-    } else {
-      navigate("/");
-    }
+    navigate("/dashboard/analytics");
   } catch (err) {
     setError(err.message);
     setIsLoggedIn(false);
@@ -51,17 +40,10 @@ useEffect(() => {
   const savedUser = localStorage.getItem("user");
 
   if (savedUser) {
-    const user = JSON.parse(savedUser);
-
-    if (user.role === "ADMIN") {
-      navigate("/dashboard/analytics");
-    } else if (user.role === "MANAGER") {
-      navigate("/dashboard/analytics");
-    } else if (user.role === "STUDENT") {
-      navigate("/dashboard/analytics");
-    }
+    navigate("/dashboard/analytics");
   }
-}, []);
+}, [navigate]);
+
 
 
   return (
@@ -136,20 +118,20 @@ useEffect(() => {
             {loginStatus === "failed" && (
               <div className="mt-5 p-4 bg-red-500/20 border border-red-500/50 rounded-2xl flex items-center gap-3">
                 <XCircle className="text-red-400" size={24} />
-                <span className="text-red-200">Login failed. Please check your credentials.</span>
+                <span className="text-red-200">{error || "Login failed. Please check your credentials."}</span>
               </div>
             )}
 
             {/* Footer */}
-            <div className="border-t border-white/10 my-7" />
+            <div className="border-t border-white/10 my-6" />
             <p className="text-center text-gray-400 text-lg">
-              Roles:{" "}
-              <span className="font-semibold text-white">
-                Admin • Manager • Student
-              </span>
+              Don't have an account?{" "}
+              <Link to="/signup" className="font-bold text-cyan-400 hover:underline">
+                Sign Up
+              </Link>
             </p>
         
       </div>
     </div>
   );
-}
+}

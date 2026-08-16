@@ -23,8 +23,59 @@ const UserSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['ADMIN', 'MANAGER', 'STUDENT'],
+      enum: [
+        'ADMIN',
+        'SUB_ADMIN',
+        'HEAD_HR',
+        'HEAD_HR_PUBLISHING',
+        'HEAD_HR_NON_PUBLISHING',
+        'GROUP_MANAGER',
+        'SUB_GROUP_MANAGER',
+        'MANAGER',
+        'STUDENT'
+      ],
       required: true,
+    },
+    roleType: {
+      type: String,
+      validate: {
+        validator: function(v) {
+          if (v === null || v === undefined || v === '') return true;
+          return ["PUBLISHING", "NON_PUBLISHING"].includes(v);
+        },
+        message: '{VALUE} is not a valid roleType'
+      },
+      default: null
+    },
+    permissions: {
+      type: [String],
+      default: []
+    },
+    phone: {
+      type: String,
+      default: null
+    },
+    contactDetails: {
+      type: String,
+      default: null
+    },
+    managedGroups: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Group" }],
+      default: []
+    },
+    parentUser: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null
+    },
+    hierarchyLevel: {
+      type: Number,
+      default: 6
     },
     is_active: {
       type: Boolean,

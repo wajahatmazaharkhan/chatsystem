@@ -17,8 +17,12 @@ describe('User Service integration', () => {
     const uri = mongod.getUri();
     await mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
+    // Ensure auth server environment variables are populated
+    process.env.JWT_SECRET = 'supersecretjwtkey';
+    process.env.JWT_EXPIRES_IN = '1h';
+
     // Start auth server (Module 1) so validate endpoint is available
-    const authApp = require('../../student-cohort-auth-module/server');
+    const authApp = require('../../auth-service/server');
     authServer = authApp.listen(3001);
 
     // Ensure user-service middleware posts validate to auth server
